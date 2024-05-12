@@ -1,4 +1,4 @@
-
+package src;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -137,7 +137,7 @@ class StaffFrame extends JFrame {
 
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Add Book", new AddBookPanel());
-        tabbedPane.addTab("View Books", new ViewBooksPanel());
+        tabbedPane.addTab("src.View Books", new ViewBooksPanel());
         tabbedPane.addTab("Manage Users", new ManageUsersPanel());
         tabbedPane.addTab("Booklist", new BooklistPanel());
 
@@ -153,7 +153,7 @@ class NormalFrame extends JFrame {
         setLocationRelativeTo(null);
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("View Books", new ViewBooksPanel());
+        tabbedPane.addTab("src.View Books", new ViewBooksPanel());
         tabbedPane.addTab("Booklist", new BooklistPanel());
         add(tabbedPane);
 
