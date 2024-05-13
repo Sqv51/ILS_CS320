@@ -5,6 +5,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -12,8 +14,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Vector;
 import java.io.File;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public class View extends JFrame {
 
@@ -172,10 +178,140 @@ class NormalFrame extends JFrame {
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("View Books", new ViewBooksPanel());
         tabbedPane.addTab("Booklist", new BookListPanel());
+        tabbedPane.addTab("User Services", new UserPanel());
         add(tabbedPane);
 
     }
 }
+class UserPanel extends JPanel {
+    private JButton requestNewBookButton, payPenaltyButton, checkDueBooksButton, payMembershipFeeButton;
+    private JLabel penaltyLabel;
+    private JTextField penaltyAmountField;
+    private Image backgroundImage;
+
+    // Simulated list of books with due dates
+    private ArrayList<Book> borrowedBooks;
+
+    public UserPanel() {
+        initializeUI();
+        loadBorrowedBooks(); // Load borrowed books for simulation
+    }
+
+    private void initializeUI() {
+        setLayout(new GridBagLayout());
+        setBorder(new EmptyBorder(10, 10, 10, 10));
+        backgroundImage = Toolkit.getDefaultToolkit().createImage("Icons/user-bg.jpg");
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.insets = new Insets(5, 10, 5, 10);
+
+        // Request New Book Button
+        requestNewBookButton = new JButton("Request New Book");
+        requestNewBookButton.addActionListener(this::requestNewBook);
+        add(requestNewBookButton, gbc);
+
+        // Penalty Amount Field and Label
+        penaltyLabel = new JLabel("Penalty Amount:");
+        add(penaltyLabel, gbc);
+
+        penaltyAmountField = new JTextField(10);
+        add(penaltyAmountField, gbc);
+
+        // Pay Penalty Button
+        payPenaltyButton = new JButton("Pay Penalty");
+        payPenaltyButton.addActionListener(this::payPenalty);
+        add(payPenaltyButton, gbc);
+
+        // Check Due Books Button
+        checkDueBooksButton = new JButton("Check Due Books");
+        checkDueBooksButton.addActionListener(this::checkBookReturnDates);
+        add(checkDueBooksButton, gbc);
+
+        // Pay Membership Fee Button
+        payMembershipFeeButton = new JButton("Pay Membership Fee");
+        payMembershipFeeButton.addActionListener(this::payMembershipFee);
+        add(payMembershipFeeButton, gbc);
+    }
+
+    private void requestNewBook(ActionEvent e) {
+        String bookName = JOptionPane.showInputDialog(this, "Enter the name of the book you want to request:");
+        if (bookName != null && !bookName.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Your request for \"" + bookName + "\" has been submitted.",
+                    "Request Submitted", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void payPenalty(ActionEvent e) {
+        String penalty = penaltyAmountField.getText();
+        if (!penalty.isEmpty()) {
+            try {
+                double amount = Double.parseDouble(penalty);
+                JOptionPane.showMessageDialog(this, "Penalty of $" + penalty + " paid.");
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Please enter a valid penalty amount.", "Invalid Input",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Please enter a penalty amount.");
+        }
+    }
+
+    private void checkBookReturnDates(ActionEvent e) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate today = LocalDate.now();
+        StringBuilder dueBooks = new StringBuilder();
+
+        for (Book book : borrowedBooks) {
+            LocalDate dueDate = LocalDate.parse(book.dueDate, dtf);
+            long daysOverdue = ChronoUnit.DAYS.between(dueDate, today);
+
+            if (daysOverdue > 0) {
+                dueBooks.append(book.title).append(" is overdue by ").append(daysOverdue).append(" days.\n");
+            }
+        }
+
+        if (dueBooks.length() > 0) {
+            JOptionPane.showMessageDialog(this, dueBooks.toString(), "Overdue Books", JOptionPane.WARNING_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "No books are currently overdue.", "All Clear",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void payMembershipFee(ActionEvent e) {
+        // Placeholder for membership fee payment logic
+        JOptionPane.showMessageDialog(this, "Membership fee payment processed.", "Payment Successful",
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void loadBorrowedBooks() {
+        borrowedBooks = new ArrayList<>();
+        borrowedBooks.add(new Book("Book 1", "2023-04-15"));
+        borrowedBooks.add(new Book("Book 2", "2023-05-01"));
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
+    }
+
+    // Simple book class for simulation
+    class Book {
+        String title;
+        String dueDate;
+
+        Book(String title, String dueDate) {
+            this.title = title;
+            this.dueDate = dueDate;
+        }
+    }
+}
+
 
 class CustomLabel extends JLabel {
     private Color backgroundColor;
@@ -325,38 +461,56 @@ class ViewBooksPanel extends JPanel {
     private JTable cartTable;
     private JButton borrowButton;
     private JButton addToCartButton;
+    private JButton rateBookButton;
     private JButton addToBookListButton;
+    private JButton notifyAvailabilityButton;
     private JComboBox<String> bookListComboBox;
 
     public ViewBooksPanel() {
-        setLayout(new GridBagLayout());
+        initializeUI();
+        loadBackgroundImage();
+        createMainTable();
+        createCartTable();
+        addComponents();
+    }
 
-        // Create a table model with column names and initial data
+    private void initializeUI() {
+        setLayout(new GridBagLayout());
+        setBorder(new EmptyBorder(10, 10, 10, 10));
+    }
+
+    private void loadBackgroundImage() {
+        backgroundImage = Toolkit.getDefaultToolkit().createImage("Icons/bg.jpg");
+    }
+
+    private void createMainTable() {
         Vector<String> viewColumnNames = new Vector<>();
-        viewColumnNames.add(""); // Add a checkbox column
+        // Add column names
+        viewColumnNames.add(""); // Checkbox column
         viewColumnNames.add("ID");
         viewColumnNames.add("Title");
         viewColumnNames.add("Author");
         viewColumnNames.add("Pages");
         viewColumnNames.add("Availability");
-
-        Vector<String> cartColumnNames = new Vector<>();
-        cartColumnNames.add("ID");
-        cartColumnNames.add("Title");
-        cartColumnNames.add("Author");
-        cartColumnNames.add("Pages");
-        cartColumnNames.add("Availability");
+        viewColumnNames.add("Borrow Days");
+        viewColumnNames.add("Genre");
+        viewColumnNames.add("Year");
+        viewColumnNames.add("Rating");
 
         Vector<Vector<Object>> data = new Vector<>();
         // Add sample data (you can replace this with actual data)
         for (int i = 1; i <= 8; i++) {
             Vector<Object> row = new Vector<>();
-            row.add(false); // Add checkbox
+            row.add(false); // Checkbox
             row.add(Integer.toString(i));
             row.add("Book " + i);
             row.add("Author " + i);
             row.add("200");
             row.add("Available");
+            row.add("7");
+            row.add("Science-Fiction");
+            row.add("2005");
+            row.add("5");
             data.add(row);
         }
 
@@ -375,35 +529,74 @@ class ViewBooksPanel extends JPanel {
         table.getColumnModel().getColumn(0).setPreferredWidth(20); // Set checkbox column width
         table.setPreferredScrollableViewportSize(new Dimension(600, 400)); // Set preferred size
 
-        // Add the main table to a scroll pane
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        // Setup the TableRowSorter
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(tableModel);
+        table.setRowSorter(sorter);
+    }
+
+    private void createCartTable() {
+        Vector<String> cartColumnNames = new Vector<>();
+        // Add column names for the cart table
+        cartColumnNames.add("");
+        cartColumnNames.add("ID");
+        cartColumnNames.add("Title");
+        cartColumnNames.add("Author");
+        cartColumnNames.add("Pages");
+        cartColumnNames.add("Availability");
+        cartColumnNames.add("Borrow Days");
+        cartColumnNames.add("Genre");
+        cartColumnNames.add("Year");
+        cartColumnNames.add("Rating");
+
+        // Create the cart table
+        DefaultTableModel cartTableModel = new DefaultTableModel(new Vector<>(), cartColumnNames);
+        cartTable = new JTable(cartTableModel);
+    }
+
+    private void addComponents() {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 1;
         gbc.weighty = 1;
         gbc.fill = GridBagConstraints.BOTH;
+
+        // Add the main table to a scroll pane
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         add(scrollPane, gbc);
 
-        // Add button to add selected books to cart
         addToCartButton = new JButton("Add to Cart");
         addToCartButton.addActionListener(this::addToCart);
         gbc.gridy++;
         gbc.fill = GridBagConstraints.NONE;
         add(addToCartButton, gbc);
 
-        // Create the cart table
-        DefaultTableModel cartTableModel = new DefaultTableModel(new Vector<>(), cartColumnNames);
-        cartTable = new JTable(cartTableModel);
+        JPanel searchPanel = new JPanel();
+        JTextField searchField = new JTextField(20);
+        JButton searchButton = new JButton("Search");
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
+        gbc.gridy = 0; // Position at the top
+        gbc.weightx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        add(searchPanel, gbc);
+
+        rateBookButton = new JButton("Rate Book");
+        rateBookButton.addActionListener(this::rateBook);
+        gbc.gridy += 2; // Skipped a row
+        gbc.fill = GridBagConstraints.NONE;
+        add(rateBookButton, gbc);
+
         JScrollPane cartScrollPane = new JScrollPane(cartTable);
         gbc.gridy++;
         gbc.fill = GridBagConstraints.BOTH;
         add(cartScrollPane, gbc);
 
-        // Add button to borrow from cart
         borrowButton = new JButton("Borrow from Cart");
         borrowButton.addActionListener(this::borrowFromCart);
+        gbc.gridy++;
+        add(borrowButton, gbc);
 
         addToBookListButton = new JButton("Add to Book List");
         addToBookListButton.addActionListener(this::addToBookList);
@@ -421,35 +614,85 @@ class ViewBooksPanel extends JPanel {
         bookListPanel.setOpaque(false);
         borrowPanel.setOpaque(false);
 
-
-        // Load the background image
-        backgroundImage = Toolkit.getDefaultToolkit().createImage("Icons/bg.jpg");
+        // Add the notifyAvailabilityButton
+        notifyAvailabilityButton = new JButton("Notify When Available");
+        notifyAvailabilityButton.addActionListener(this::onNotifyAvailabilityClicked);
+        gbc.gridy++;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        add(notifyAvailabilityButton, gbc);
     }
 
+    private void onNotifyAvailabilityClicked(ActionEvent e) {
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        boolean foundAvailable = false;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            boolean isChecked = (boolean) model.getValueAt(i, 0); // Checkbox column
+            if (isChecked) {
+                String status = (String) model.getValueAt(i, 5); // Assuming 'Availability' is in column 5
+                if ("Available".equals(status)) {
+                    JOptionPane.showMessageDialog(this, model.getValueAt(i, 2) + " is now available!", // Assuming 'Title'
+                            // is in column 2
+                            "Book Available", JOptionPane.INFORMATION_MESSAGE);
+                    foundAvailable = true;
+                } else {
+                    JOptionPane.showMessageDialog(this, model.getValueAt(i, 2) + " is not available.", // Assuming 'Title'
+                            // is in column 2
+                            "Book Not Available", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        }
+        if (!foundAvailable) {
+            JOptionPane.showMessageDialog(this, "No checked books are currently available.", "No Books Available",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    // Action listeners for buttons
+
     private void addToCart(ActionEvent e) {
+        // Add selected books to the cart
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         DefaultTableModel cartModel = (DefaultTableModel) cartTable.getModel();
 
         for (int i = 0; i < model.getRowCount(); i++) {
             if ((boolean) model.getValueAt(i, 0)) {
                 Vector<Object> rowData = new Vector<>();
-                for (int j = 1; j < model.getColumnCount(); j++) {
+                for (int j = 0; j < model.getColumnCount(); j++) {
                     rowData.add(model.getValueAt(i, j));
                 }
+                rowData.set(0, ""); // Remove the checkbox
                 cartModel.addRow(rowData);
             }
         }
     }
 
     private void borrowFromCart(ActionEvent e) {
+        // Borrow books from the cart
         DefaultTableModel cartModel = (DefaultTableModel) cartTable.getModel();
         StringBuilder booksBorrowed = new StringBuilder("Books borrowed:\n");
 
         for (int i = 0; i < cartModel.getRowCount(); i++) {
-            booksBorrowed.append(cartModel.getValueAt(i, 1)).append("\n"); // Get book title from column index 2
+            booksBorrowed.append(cartModel.getValueAt(i, 1)).append("\n"); // Get book title from column index 1
         }
 
         JOptionPane.showMessageDialog(this, booksBorrowed.toString());
+    }
+
+    private void rateBook(ActionEvent e) {
+        // Rate a book
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow != -1) {
+            String title = table.getValueAt(selectedRow, 2).toString(); // Assuming the title is in column 2
+            String[] options = {"1", "2", "3", "4", "5"};
+            String rating = (String) JOptionPane.showInputDialog(this, "Rate the book: " + title, "Book Rating",
+                    JOptionPane.QUESTION_MESSAGE, null, options, options[4]);
+            if (rating != null) {
+                JOptionPane.showMessageDialog(this, "You rated '" + title + "' with " + rating + " stars.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a book to rate.", "Rating Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void addToBookList(ActionEvent e) {
@@ -474,6 +717,7 @@ class ViewBooksPanel extends JPanel {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
+
 }
 class ManageUsersPanel extends JPanel {
     // manage penalties and view borrowing history of users
