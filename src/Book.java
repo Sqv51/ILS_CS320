@@ -39,7 +39,7 @@ public class Book {
     		double sum = 0;
     		for (Rating rating : this.ratings) {
     			sum += rating.getScore();
-			}
+		}
     		return sum/this.ratings.size();
     	}
     }
@@ -50,8 +50,8 @@ public class Book {
     }
     protected void notifyMembers() {
     	for (Member member : reservationList) {
-			member.notifyWhenAvailable(this);
-		}
+		member.notifyWhenAvailable(this);
+	}
     	reservationList.clear();
     }
     protected void setAvailable(boolean available) {
