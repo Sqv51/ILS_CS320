@@ -34,7 +34,7 @@ public class Book {
     }
     protected double getAverageRating() {
     	if(this.ratings.isEmpty()) {
-    		return 0;
+    	    return 0;
     	}else {
     	    double sum = 0;
     	    for (Rating rating : this.ratings) {
