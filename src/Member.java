@@ -32,4 +32,11 @@ public class Member {
     protected void setPenaltyAmount(double penaltyAmount){
         this.penaltyAmount = penaltyAmount;
     }
+    protected void rate(Book book, int score) {
+    	Rating rating = new Rating(this, score);
+    	book.addRating(rating);
+    }
+    protected void notifyWhenAvailable(Book book) {
+    	System.out.println("The book \"" + book.getTitle() + "\" is now available for borrowing.");
+    }
 }
