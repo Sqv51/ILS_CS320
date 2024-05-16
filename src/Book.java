@@ -36,27 +36,27 @@ public class Book {
     	if(this.ratings.isEmpty()) {
     		return 0;
     	}else {
-    		double sum = 0;
-    		for (Rating rating : this.ratings) {
-    			sum += rating.getScore();
-		}
-    		return sum/this.ratings.size();
+    	    double sum = 0;
+    	    for (Rating rating : this.ratings) {
+    		sum += rating.getScore();
+	    }
+    	    return sum/this.ratings.size();
     	}
     }
     protected void reserve(Member member) {
     	if(!reservationList.contains(member)) {
-    		reservationList.add(member);
+    	    reservationList.add(member);
     	}
     }
     protected void notifyMembers() {
     	for (Member member : reservationList) {
-		member.notifyWhenAvailable(this);
+	    member.notifyWhenAvailable(this);
 	}
     	reservationList.clear();
     }
     protected void setAvailable(boolean available) {
     	if(this.isAvailable) {
-    		notifyMembers();
+    	    notifyMembers();
     	}
     }
 }
