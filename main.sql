@@ -13,7 +13,8 @@ create table Book(bookID integer,
                   year integer,
                   rating double,
                   description varchar(140),
-                  primary key(bookID));
+                  primary key(bookID),
+                  isAvailable bool);
 
 create table Reserves(userID integer,
        bookID integer,
@@ -35,3 +36,13 @@ create table Borrow(userID integer,
                     primary key(userID, bookID),
                     foreign key(userID) references Users(userID),
                     foreign key(bookID) references Book(bookID));
+
+CREATE TABLE BorrowHistory(
+     userID INTEGER,
+     bookID INTEGER,
+     borrowDate DATE,
+     returnDate DATE,
+     PRIMARY KEY(userID, bookID, borrowDate),
+     FOREIGN KEY(userID) REFERENCES Users(userID),
+     FOREIGN KEY(bookID) REFERENCES Book(bookID)
+ );
