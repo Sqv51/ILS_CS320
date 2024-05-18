@@ -9,25 +9,19 @@ public class Model {
     public Model(){
         conn = SqlConnection.getConnection();
     }
-    public String signIn(int ID, String password, String type) throws SQLException {
+    public String signIn(int ID, String password) throws SQLException {
 
-        if (type.equals("Student")){
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM Student WHERE studentID = ? AND password =?");
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM Users WHERE userID = ? AND password =?");
             ps.setInt(1,ID);
             ps.setString(2,password);
             ResultSet rs = ps.executeQuery();
+
             if (rs.next()){
-                return "" + rs.getInt(1) +"," + rs.getString(2);
+                boolean isStaff = rs.getBoolean(5);
+                return "" + rs.getInt(1) +"," + rs.getString(2) + "," +isStaff;
             }
-        } else if (type.equals("Staff")) {
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM Staff WHERE staffID = ? AND password =?");
-            ps.setInt(1,ID);
-            ps.setString(2,password);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()){
-                return "" + rs.getInt(1) +"," + rs.getString(2);
-            }
-        }
+
+
         return "Invalid Input";
     }
     public Book getBookByID(int ID){
