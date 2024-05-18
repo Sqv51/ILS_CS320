@@ -1,22 +1,21 @@
 package src;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
 
 public class SqlConnection {
-    final static String url = "jdbc:mysql://localhost:3306/HospitalManagement";
+    private static final String URL = "jdbc:mysql://localhost:3306/ils_db";
+    private static final String USER = "root";
+    private static final String PASSWORD = "ab123456";
 
-    final static String user = "root";
-
-    final static String password = "qwerty123";
-
-    public static Connection getConnection(){
-        Connection myConn = null;
-
+    public static Connection getConnection() {
         try {
-            myConn = DriverManager.getConnection(url, user, password);
+            return DriverManager.getConnection(URL, USER, PASSWORD);
         } catch (Exception e) {
-            System.out.println("\n>>>ERROR! The Program Can NOT Connect to the Database <<<");
+           //print error
+            e.toString();
+            System.out.println("Error: " + e);
+            return null;
         }
-        return myConn;
     }
 }

@@ -3,8 +3,6 @@ package src;
 import src.repository.BorrowingHistory;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +18,9 @@ public class Control {
             String []infos = data.split(",");
             int userID = Integer.parseInt(infos[0]);
             String password = infos[1];
+            //print the username and password
+            System.out.println(userID + " " + password);
+
 
             try {
                 if (!model.signIn(userID, password, "Student").equals("Invalid Input")){
@@ -37,7 +38,9 @@ public class Control {
     public Control(Model model, View first){
         this.model = model;
         first.setActionListener(this);
+        pages = new ArrayList<>();
         addNewPage(first);
+
     }
     public void addNewPage(JFrame page){
         if (pages.size() > 0){

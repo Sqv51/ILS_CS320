@@ -46,3 +46,15 @@ CREATE TABLE BorrowHistory(
      FOREIGN KEY(userID) REFERENCES Users(userID),
      FOREIGN KEY(bookID) REFERENCES Book(bookID)
  );
+ CREATE TRIGGER after_book_borrow
+ AFTER INSERT ON Borrow
+ FOR EACH ROW
+ INSERT INTO BorrowHistory (userID, bookID, borrowDate, returnDate)
+ VALUES (NEW.userID, NEW.bookID, NEW.borrowDate, NULL);
+
+ CREATE TRIGGER after_book_return
+ AFTER UPDATE ON Borrow
+ FOR EACH ROW
+ WHEN OLD.returnDate IS NULL AND NEW.returnDate IS NOT NULL
+ INSERT INTO BorrowHistory (userID, bookID, borrowDate, returnDate)
+ VALUES (NEW.userID, NEW.bookID, NEW.borrowDate, NEW.returnDate);
