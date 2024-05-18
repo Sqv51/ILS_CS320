@@ -1,4 +1,7 @@
-package src;
+package src.repository;
+
+import src.Member;
+import src.repository.Book;
 
 import java.util.Date;
 import java.util.List;

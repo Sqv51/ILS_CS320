@@ -31,3 +31,13 @@ create table Staff(staffID integer,
 				   userName varchar(20),
                    password varchar(20),
                    primary key(staffID));
+
+create table Borrow(studentID integer,
+                                bookID integer,
+                    borrowDate date,
+                    returnDate date,
+                    primary key(studentID, bookID),
+                    foreign key(studentID) references Student(studentID),
+                    foreign key(bookID) references Book(bookID));
+
+

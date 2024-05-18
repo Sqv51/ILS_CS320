@@ -1,5 +1,7 @@
 package src;
 
+import src.repository.BorrowingHistory;
+
 import java.util.ArrayList;
 import java.util.List;
 

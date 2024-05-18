@@ -6,7 +6,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
-
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -47,10 +46,10 @@ class LoginPanel extends JPanel {
         this.parentFrame = parentFrame;
         setLayout(new GridBagLayout());
 
-        ImageIcon librarianNormal = new ImageIcon("Icons/librarian(1).png");
-        ImageIcon librarianHover = new ImageIcon("Icons/librarian.png");
-        ImageIcon readerNormal = new ImageIcon("Icons/reading(1).png");
-        ImageIcon readerHover = new ImageIcon("Icons/reading.png");
+        ImageIcon librarianNormal = new ImageIcon("src/Icons/librarian(1).png");
+        ImageIcon librarianHover = new ImageIcon("src/Icons/librarian.png");
+        ImageIcon readerNormal = new ImageIcon("src/Icons/reading(1).png");
+        ImageIcon readerHover = new ImageIcon("src/Icons/reading.png");
         JPanel userPanel = new JPanel();
         userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.Y_AXIS));
 

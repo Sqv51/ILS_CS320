@@ -1,4 +1,4 @@
-package src;
+package src.repository;
 
 public class Book {
     private String title;
