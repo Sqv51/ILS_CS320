@@ -38,7 +38,7 @@ public class Member {
     	Rating rating = new Rating(this, score);
     	book.addRating(rating);
     }
-    protected void notifyWhenAvailable(Book book) {
+    public void notifyWhenAvailable(Book book) {
     	System.out.println("The book \"" + book.getTitle() + "\" is now available for borrowing.");
     }
 }

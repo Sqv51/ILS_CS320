@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
+
 public class View extends JFrame {
 
     public View() {
@@ -116,6 +117,7 @@ class LoginPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
+                String password = new String(passwordField.getPassword());
                 // Perform login logic here
                 if (username.equals("staff")) {
                     parentFrame.dispose(); // Close the login frame
@@ -854,6 +856,10 @@ class BookListPanel extends JPanel {
         createBookListButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle creating book list here
+                Model.addFavorite();
+
+
+
             }
         });
         topPanel.add(createBookListButton);

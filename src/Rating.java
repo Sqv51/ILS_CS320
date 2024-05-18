@@ -7,12 +7,12 @@ public class Rating{
     private Member member;
     private int score;
 	
-    private Rating(Member member, int score) {}
+    public Rating(Member member, int score) {}
 	
     protected Member getMember() {
 	return this.member;
     }
-    protected int getScore() {
+    public int getScore() {
 	return this.score;
     }
     protected void setScore(int rating) {

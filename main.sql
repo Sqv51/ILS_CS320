@@ -1,43 +1,37 @@
-use database_name;
+use ils_db;
 
-create table Student(studentID integer,
-					 userName varchar(20),
+create table Users(userID integer,
+      userName varchar(20),
                      password varchar(20),
                      dueFine integer,
-                     primary key(studentID));
-                     
+                     primary key(userID),
+                     isStaff bool);
+
 create table Book(bookID integer,
-				  bookName varchar(100),
+      bookName varchar(100),
                   genre varchar(20),
                   year integer,
                   rating double,
                   description varchar(140),
                   primary key(bookID));
-                  
-create table Reserves(studentID integer,
-					  bookID integer,
+
+create table Reserves(userID integer,
+       bookID integer,
                       dueDate date,
-                      primary key(studentID, bookID),
-                      foreign key(studentID) references Student(studentID),
+                      primary key(userID, bookID),
+                      foreign key(userID) references Users(userID),
                       foreign key(bookID) references Book(bookID));
 
-create table Favourites(studentID integer,
+create table Favourites(userID integer,
                         bookID integer,
-                        primary key(studentID, bookID),
-                        foreign key(studentID) references Student(studentID),
+                        primary key(userID, bookID),
+                        foreign key(userID) references Users(userID),
                         foreign key(bookID) references Book(bookID));
-                      
-create table Staff(staffID integer,
-				   userName varchar(20),
-                   password varchar(20),
-                   primary key(staffID));
 
-create table Borrow(studentID integer,
+create table Borrow(userID integer,
                                 bookID integer,
                     borrowDate date,
                     returnDate date,
-                    primary key(studentID, bookID),
-                    foreign key(studentID) references Student(studentID),
+                    primary key(userID, bookID),
+                    foreign key(userID) references Users(userID),
                     foreign key(bookID) references Book(bookID));
-
-
