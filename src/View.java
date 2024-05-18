@@ -492,6 +492,7 @@ class ViewBooksPanel extends JPanel {
 
         Vector<Vector<Object>> data = new Vector<>();
         // Add sample data (you can replace this with actual data)
+        //SQL QUERY gelecek
         for (int i = 1; i <= 8; i++) {
             Vector<Object> row = new Vector<>();
             row.add(false); // Checkbox
