@@ -1,11 +1,8 @@
 package src;
 
-import src.repository.BorrowingHistory;
-
 import javax.swing.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class Control {
@@ -18,13 +15,19 @@ public class Control {
             String []infos = data.split(",");
             int userID = Integer.parseInt(infos[0]);
             String password = infos[1];
-            //print the username and password
-            System.out.println(userID + " " + password);
+
 
 
             try {
-                if (!model.signIn(userID, password, "Student").equals("Invalid Input")){
-                    addNewPage(new StaffFrame());
+                String [] user = model.signIn(userID, password).split(",");
+
+                if (user.length > 1){
+                    String isStaff = user[2];
+                    if (isStaff.equals("true")){
+                        addNewPage(new StaffFrame());
+                    } else {
+                        addNewPage(new NormalFrame());
+                    }
                 } else {
                     System.out.println("there is no such a user");
                 }
@@ -56,17 +59,9 @@ public class Control {
         pages.get(index-1).setVisible(true);
     }
 
-    public class PenaltyController {
-    public void applyPenalty(Member member, double penaltyAmount) {
-        member.setPenaltyAmount(member.getPenaltyAmount() + penaltyAmount);
-    }
-}
 
-public class BorrowingHistoryController {
-    public List<BorrowingHistory> getBorrowingHistory(Member member) {
-        //Return borrowed books
-        return new ArrayList<>();
-    }
-}
+
+
+
 
 }
