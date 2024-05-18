@@ -1,7 +1,8 @@
 package src.repository;
 
 import src.Member;
-import src.Rating;
+import src.repository.Rating;
+
 import java.util.List;
 
 public class Book {

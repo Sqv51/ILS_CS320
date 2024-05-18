@@ -1,4 +1,6 @@
-package src;
+package src.repository;
+
+import src.Member;
 
 import java.util.List;
 

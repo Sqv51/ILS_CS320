@@ -1,6 +1,7 @@
 package src;
 
 import src.repository.Book;
+import src.repository.Rating;
 
 import java.util.List;
 
