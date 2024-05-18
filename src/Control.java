@@ -10,18 +10,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Control implements ActionListener {
+public class Control {
     private ArrayList<JFrame> pages;
     private Model model;
-    private String tmp;
-    @Override
-    public void actionPerformed(ActionEvent e) {
 
-        String command = e.getActionCommand();
+    public void action(String command, String data) {
+
         if (command.equals("Enter-The-System")){
-            String []data = tmp.split(",");
-            int userID = Integer.parseInt(data[0]);
-            String password = data[1];
+            String []infos = data.split(",");
+            int userID = Integer.parseInt(infos[0]);
+            String password = infos[1];
 
             try {
                 if (!model.signIn(userID, password, "Student").equals("Invalid Input")){
@@ -54,11 +52,6 @@ public class Control implements ActionListener {
         pages.remove(index);
         pages.get(index-1).setVisible(true);
     }
-
-    public void setTmp(String tmp){
-        this.tmp = tmp;
-    }
-
 
     public class PenaltyController {
     public void applyPenalty(Member member, double penaltyAmount) {

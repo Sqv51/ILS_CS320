@@ -119,9 +119,14 @@ class LoginPanel extends JPanel {
         gbc.anchor = GridBagConstraints.CENTER;
         add(userPanel, gbc);
 
-        parentFrame.getActionListener().setTmp(usernameField.getText()+","+passwordField.getText());
         enterButton.setActionCommand("Enter-The-System");
-        enterButton.addActionListener(parentFrame.getActionListener());
+        enterButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String data = usernameField.getText()+","+passwordField.getText();
+                parentFrame.getActionListener().action(e.getActionCommand(),data);
+            }
+        });
 
 
         // Load the background image
