@@ -1,5 +1,10 @@
 package src.repository;
 
+import src.Member;
+import src.repository.Rating;
+
+import java.util.List;
+
 public class Book {
     private String title;
     private String author;
@@ -8,7 +13,7 @@ public class Book {
     private List<Rating> ratings;
     private List<Member> reservationList;
 
-    protected String getTitle(){
+    public String getTitle(){
         return title;
     }
     protected String getAuthor(){
@@ -29,7 +34,7 @@ public class Book {
     protected List<Rating> getRatings(){
     	return this.ratings;
     }
-    protected void addRating(Rating rating) {
+    public void addRating(Rating rating) {
     	this.ratings.add(rating);
     }
     protected double getAverageRating() {

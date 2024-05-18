@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 public class View extends JFrame {
-
+    private Control actionListener;
     public View() {
         // ICONS
 
@@ -31,18 +31,24 @@ public class View extends JFrame {
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
         add(new LoginPanel(this), BorderLayout.CENTER);
+    }
 
-        setVisible(true);
+    public void setActionListener(Control actionListener) {
+        this.actionListener = actionListener;
+    }
+
+    public Control getActionListener() {
+        return actionListener;
     }
 }
 class LoginPanel extends JPanel {
     private Image backgroundImage;
     private JFrame parentFrame;
-    private JTextField usernameField;
-    private JPasswordField passwordField;
+    public JTextField usernameField;
+    public JTextField passwordField;
 
 
-    public LoginPanel(JFrame parentFrame) {
+    public LoginPanel(View parentFrame) {
         this.parentFrame = parentFrame;
         setLayout(new GridBagLayout());
 
@@ -112,27 +118,10 @@ class LoginPanel extends JPanel {
         gbc.insets = new Insets(10, 10, 10, 10); // Margins around the panel
         gbc.anchor = GridBagConstraints.CENTER;
         add(userPanel, gbc);
-        enterButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String username = usernameField.getText();
-                // Perform login logic here
-                if (username.equals("staff")) {
-                    parentFrame.dispose(); // Close the login frame
-                    StaffFrame staffFrame = new StaffFrame();
-                    staffFrame.setVisible(true); // Show the main application frame
-                }
-                else if (username.equals("normal")) {
-                    parentFrame.dispose(); // Close the login frame
-                    NormalFrame normalFrame = new NormalFrame();
-                    normalFrame.setVisible(true); // Show the main application frame
-                }
 
-                else {
-                    JOptionPane.showMessageDialog(null, "Login failed. Please try again.");
-                }
-            }
-        });
+        parentFrame.getActionListener().setTmp(usernameField.getText()+","+passwordField.getText());
+        enterButton.setActionCommand("Enter-The-System");
+        enterButton.addActionListener(parentFrame.getActionListener());
 
 
         // Load the background image

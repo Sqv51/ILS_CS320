@@ -1,6 +1,7 @@
 package src;
 
 import src.repository.Book;
+import src.repository.Rating;
 
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class Member {
     	Rating rating = new Rating(this, score);
     	book.addRating(rating);
     }
-    protected void notifyWhenAvailable(Book book) {
+    public void notifyWhenAvailable(Book book) {
     	System.out.println("The book \"" + book.getTitle() + "\" is now available for borrowing.");
     }
 }
