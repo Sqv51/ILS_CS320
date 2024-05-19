@@ -46,6 +46,16 @@ CREATE TABLE BorrowHistory(
      FOREIGN KEY(userID) REFERENCES Users(userID),
      FOREIGN KEY(bookID) REFERENCES Book(bookID)
  );
+ 
+CREATE TABLE Ratings(
+      ratingID INT PRIMARY KEY AUTO_INCREMENT,
+      bookID INT,
+      memberID INT,
+      score INT,
+      FOREIGN KEY (bookID) REFERENCES Books(bookID),
+      FOREIGN KEY (memberID) REFERENCES Members(memberID)
+);
+
  CREATE TRIGGER after_book_borrow
  AFTER INSERT ON Borrow
  FOR EACH ROW
