@@ -254,22 +254,28 @@ class UserPanel extends JPanel {
     private void checkBookReturnDates(ActionEvent e) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate today = LocalDate.now();
-        StringBuilder dueBooks = new StringBuilder();
+        StringBuilder dueSoonBooks = new StringBuilder();
+        StringBuilder overdueBooks = new StringBuilder();
 
         for (Book book : borrowedBooks) {
             LocalDate dueDate = LocalDate.parse(book.dueDate, dtf);
-            long daysOverdue = ChronoUnit.DAYS.between(dueDate, today);
+            long daysUntilDue = ChronoUnit.DAYS.between(today, dueDate);
 
-            if (daysOverdue > 0) {
-                dueBooks.append(book.title).append(" is overdue by ").append(daysOverdue).append(" days.\n");
+            if (daysUntilDue < 0) {
+                overdueBooks.append(book.title).append(" is overdue by ").append(-daysUntilDue).append(" days.\n");
+            } else if (daysUntilDue <= 2) {
+                dueSoonBooks.append(book.title).append(" is due in ").append(daysUntilDue).append(" days.\n");
             }
         }
 
-        if (dueBooks.length() > 0) {
-            JOptionPane.showMessageDialog(this, dueBooks.toString(), "Overdue Books", JOptionPane.WARNING_MESSAGE);
-        } else {
-            JOptionPane.showMessageDialog(this, "No books are currently overdue.", "All Clear",
-                    JOptionPane.INFORMATION_MESSAGE);
+        if (overdueBooks.length() > 0) {
+            JOptionPane.showMessageDialog(this, overdueBooks.toString(), "Overdue Books", JOptionPane.WARNING_MESSAGE);
+        }
+
+        if (dueSoonBooks.length() > 0) {
+            JOptionPane.showMessageDialog(this, dueSoonBooks.toString(), "Books Due Soon", JOptionPane.INFORMATION_MESSAGE);
+        } else if (overdueBooks.length() == 0) {
+            JOptionPane.showMessageDialog(this, "No books are currently overdue or due soon.", "All Clear", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -454,6 +460,7 @@ class ViewBooksPanel extends JPanel {
     private JTable cartTable;
     private JButton borrowButton;
     private JButton addToCartButton;
+    private JButton removeFromCartButton;
     private JButton rateBookButton;
     private JButton addToBookListButton;
     private JButton notifyAvailabilityButton;
@@ -555,16 +562,28 @@ class ViewBooksPanel extends JPanel {
         gbc.weighty = 1;
         gbc.fill = GridBagConstraints.BOTH;
 
-        // Add the main table to a scroll pane
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         add(scrollPane, gbc);
 
+
+        gbc.gridy++;
+
+
+        JPanel cartButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));  // Use FlowLayout for horizontal alignment
+
+
         addToCartButton = new JButton("Add to Cart");
         addToCartButton.addActionListener(this::addToCart);
-        gbc.gridy++;
-        gbc.fill = GridBagConstraints.NONE;
-        add(addToCartButton, gbc);
+        cartButtonsPanel.add(addToCartButton);  // Add "Add to Cart" button to the panel
+
+
+        removeFromCartButton = new JButton("Remove from Cart");
+        removeFromCartButton.addActionListener(this::removeFromCart);
+        cartButtonsPanel.add(removeFromCartButton);  // Add "Remove from Cart" button to the panel
+
+
+        add(cartButtonsPanel, gbc);  // Use the same GridBagConstraints as the table
 
         JPanel searchPanel = new JPanel();
         JTextField searchField = new JTextField(20);
@@ -659,18 +678,44 @@ class ViewBooksPanel extends JPanel {
             }
         }
     }
+    private void removeFromCart(ActionEvent e) {
+        DefaultTableModel cartModel = (DefaultTableModel) cartTable.getModel();
+        int[] selectedRows = cartTable.getSelectedRows();
+
+        // Remove rows from the end to the start to avoid index shifting issues
+        for (int i = selectedRows.length - 1; i >= 0; i--) {
+            cartModel.removeRow(selectedRows[i]);
+        }
+    }
 
     private void borrowFromCart(ActionEvent e) {
         // Borrow books from the cart
         DefaultTableModel cartModel = (DefaultTableModel) cartTable.getModel();
         StringBuilder booksBorrowed = new StringBuilder("Books borrowed:\n");
+        StringBuilder unavailableBooks = new StringBuilder("Unavailable books:\n");
 
         for (int i = 0; i < cartModel.getRowCount(); i++) {
-            booksBorrowed.append(cartModel.getValueAt(i, 1)).append("\n"); // Get book title from column index 1
+            String bookTitle = (String) cartModel.getValueAt(i, 2);
+            String availability = (String) cartModel.getValueAt(i, 5);
+            if ("Available".equals(availability)) {
+                booksBorrowed.append(bookTitle).append("\n");
+                cartModel.setValueAt("Not Available", i, 5);
+            } else {
+                unavailableBooks.append(bookTitle).append("\n");
+            }
         }
 
-        JOptionPane.showMessageDialog(this, booksBorrowed.toString());
+        if (booksBorrowed.length() > "Books borrowed:\n".length()) {
+            JOptionPane.showMessageDialog(this, booksBorrowed.toString());
+        } else {
+            JOptionPane.showMessageDialog(this, "No available books to borrow.");
+        }
+
+        if (unavailableBooks.length() > "Unavailable books:\n".length()) {
+            JOptionPane.showMessageDialog(this, unavailableBooks.toString(), "Unavailable Books", JOptionPane.WARNING_MESSAGE);
+        }
     }
+
 
     private void rateBook(ActionEvent e) {
         // Rate a book
