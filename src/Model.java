@@ -1,8 +1,12 @@
 package src;
 
 import src.repository.Book;
+import src.Member;
+import src.repository.Rating;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Model {
     Connection conn;
@@ -24,8 +28,38 @@ public class Model {
 
         return "Invalid Input";
     }
-    public Book getBookByID(int ID){
-        return null;
+    public Book getBookByID(int bookID){
+    	Book book = null;
+    	try {
+    		PreparedStatement ps = conn.prepareStatement("SELECT * FROM Members WHERE memberID = ?");
+    		ps.setInt(1, bookID);
+    		ResultSet rs = ps.executeQuery();
+    		if(rs.next()) {
+    			book = new Book();
+    			book.setBookID(rs.getInt("memberID"));
+                book.setTitle("title");
+    		}
+    	}catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return book;
+    }
+    
+    public Member getMemberByID(int memberID) {
+    	Member member = null;
+    	try {
+    		PreparedStatement ps = conn.prepareStatement("SELECT * FROM Members WHERE memberID = ?");
+    		ps.setInt(1, memberID);
+    		ResultSet rs = ps.executeQuery();
+    		if(rs.next()) {
+    			member = new Member();
+    			member.setMemberId(rs.getInt("memberID"));
+                member.setName(rs.getString("name"));
+    		}
+    	}catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return member;
     }
 
 
@@ -84,6 +118,55 @@ public class Model {
 
         return new boolean[2];
 
+    }
+
+    public void addRating(Book book, Rating rating) {
+    	try {
+    		PreparedStatement ps = conn.prepareStatement("INSERT INTO Ratings (bookID, memberID, rating) VALUES (?,?,?)");
+    		ps.setInt(1, book.getBookID());
+    		ps.setInt(2, rating.getMember().getMemberId());
+    		ps.setInt(3, rating.getScore());
+    		ps.executeUpdate();		
+    		
+    	}catch (SQLException e) {
+            e.printStackTrace();
+    	}
+    }
+    
+    public List<Rating> getRatings(Book book){
+    	List<Rating> ratings = new ArrayList<>();
+    	try {
+    		PreparedStatement ps = conn.prepareStatement("SELECT memberID, score from Ratings where bookID = ?");
+    		ps.setInt(1, book.getBookID());
+    		ResultSet rs = ps.executeQuery();
+    		
+    		while(rs.next()) {
+    			int memberID = rs.getInt("memberID");
+                int score = rs.getInt("score");
+                Member member = getMemberByID(memberID);
+                Rating rating = new Rating(member, score);
+                ratings.add(rating);                
+    		}
+    		
+    	}catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ratings;
+    }
+    
+    public double getAverageRating(int bookID) {
+    	double averageRating = 0;
+        try {
+            PreparedStatement ps = conn.prepareStatement("SELECT average rating from Ratings where bookID = ?");
+            ps.setInt(1, bookID);
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()) {
+                averageRating = rs.getDouble("averageRating");
+            }
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return averageRating;
     }
 
 }

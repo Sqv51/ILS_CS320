@@ -7,6 +7,7 @@ import java.util.List;
 public class Book {
     private String title;
     private String author;
+    private int bookID;
     private boolean isOverdue;
     private boolean isAvailable;
     private List<Rating> ratings;
@@ -21,7 +22,7 @@ public class Book {
     public boolean getisOverdue(){
         return isOverdue;
     }
-    protected void setTitle(String title){
+    public void setTitle(String title){
         this.title=title;
     }
     protected void setAuthor(String author){
@@ -69,6 +70,10 @@ public class Book {
     }
 
     public int getBookID() {
-        return 0;
+        return bookID;
+    }
+	
+    public void setBookID(int bookID) {
+    	this.bookID = bookID;
     }
 }
