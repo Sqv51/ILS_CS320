@@ -1,7 +1,6 @@
 package src.repository;
 
 import src.Member;
-import src.repository.Rating;
 
 import java.util.List;
 
@@ -16,10 +15,10 @@ public class Book {
     public String getTitle(){
         return title;
     }
-    protected String getAuthor(){
+    public String getAuthor(){
         return author;
     }
-    protected boolean getisOverdue(){
+    public boolean getisOverdue(){
         return isOverdue;
     }
     protected void setTitle(String title){
@@ -63,5 +62,13 @@ public class Book {
     	if(this.isAvailable) {
     	    notifyMembers();
     	}
+    }
+
+    public boolean getisAvailable() {
+        return isAvailable;
+    }
+
+    public int getBookID() {
+        return 0;
     }
 }
