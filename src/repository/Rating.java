@@ -11,7 +11,7 @@ public class Rating{
 	
     public Rating(Member member, int score) {}
 	
-    protected Member getMember() {
+    public Member getMember() {
 	return this.member;
     }
     public int getScore() {
