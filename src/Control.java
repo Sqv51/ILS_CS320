@@ -11,33 +11,45 @@ public class Control {
 
     public void action(String command, String data) {
 
-        if (command.equals("Enter-The-System")){
+        if ("Enter-The-System".equals(command)){
             String []infos = data.split(",");
-            int userID = Integer.parseInt(infos[0]);
-            String password = infos[1];
-
-
-
-            try {
-                String [] user = model.signIn(userID, password).split(",");
-
-                if (user.length > 1){
-                    String isStaff = user[2];
-                    if (isStaff.equals("true")){
-                        addNewPage(new StaffFrame());
-                    } else {
-                        addNewPage(new NormalFrame());
+            if (infos.length >= 2) {
+                try {
+                    if (!infos[0].matches("\\d+")) {
+                        JOptionPane.showMessageDialog(null, "Invalid user ID: " + infos[0], "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
                     }
-                } else {
-                    System.out.println("there is no such a user");
+                    String [] user = model.signIn(Integer.parseInt(infos[0]), infos[1]).split(",");
+                    if (user.length > 2 && "true".equals(user[2])){
+                        addNewPage(new StaffFrame());
+                    } else if (user.length > 1) {
+                        addNewPage(new NormalFrame());
+                        //send pop up message to the user
+                        checkForNotification(Integer.parseInt(user[0]));
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Check ID and password", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
                 }
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
             }
         }
 
 
     }
+
+    private void checkForNotification(int parseInt) {
+        boolean [] notifications = model.Notification(parseInt);
+        if (notifications[0]){
+            JOptionPane.showMessageDialog(null, "You have overdue books", "Notification", JOptionPane.INFORMATION_MESSAGE);
+        }
+        if (notifications[1]){
+            JOptionPane.showMessageDialog(null, "You have books that are due soon", "Notification", JOptionPane.INFORMATION_MESSAGE);
+        }
+
+
+    }
+
     public Control(Model model, View first){
         this.model = model;
         first.setActionListener(this);
