@@ -133,7 +133,7 @@ class LoginPanel extends JPanel {
 
 
         // Load the background image
-        backgroundImage = Toolkit.getDefaultToolkit().createImage("Icons/bg.jpg");
+        backgroundImage = Toolkit.getDefaultToolkit().createImage("src/Icons/bg.jpg");
     }
 
     @Override
@@ -172,7 +172,11 @@ class NormalFrame extends JFrame {
         setLocationRelativeTo(null);
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("View Books", new ViewBooksPanel(control));
+        try {
+            tabbedPane.addTab("View Books", new ViewBooksPanel(control));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         tabbedPane.addTab("Booklist", new BookListPanel());
         tabbedPane.addTab("User Services", new UserPanel());
         add(tabbedPane);
@@ -196,7 +200,7 @@ class UserPanel extends JPanel {
     private void initializeUI() {
         setLayout(new GridBagLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));
-        backgroundImage = Toolkit.getDefaultToolkit().createImage("Icons/user-bg.jpg");
+        backgroundImage = Toolkit.getDefaultToolkit().createImage("src/Icons/bg.jpg");
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -204,12 +208,9 @@ class UserPanel extends JPanel {
         gbc.insets = new Insets(5, 10, 5, 10);
 
         // Request New Book Button
-        requestNewBookButton = new JButton("Request New Book");
-        requestNewBookButton.addActionListener(this::requestNewBook);
-        add(requestNewBookButton, gbc);
 
         // Penalty Amount Field and Label
-        penaltyLabel = new JLabel("Penalty Amount:");
+        penaltyLabel = new CustomLabel("Penalty Amount:");
         add(penaltyLabel, gbc);
 
         penaltyAmountField = new JTextField(10);
@@ -339,7 +340,6 @@ class AddBookPanel extends JPanel {
     private JTextField titleField;
     private JTextField authorField;
     private JTextField yearField;
-    private JTextField borrowDaysField;
     private JTextField descriptionField;
     private JButton createButton;
     private JLabel imageLabel;
@@ -359,15 +359,14 @@ class AddBookPanel extends JPanel {
         gbc.insets = new Insets(10, 100, 10, 100);
         gbc.anchor = GridBagConstraints.WEST;
 
-        controlPanel.add(new CustomLabel("Genre:"), gbc);
-        gbc.gridy++;
+
         controlPanel.add(new CustomLabel("Book Title:"), gbc);
         gbc.gridy++;
         controlPanel.add(new CustomLabel("Author Name:"), gbc);
         gbc.gridy++;
-        controlPanel.add(new CustomLabel("Year:"), gbc);
+        controlPanel.add(new CustomLabel("Genre:"), gbc);
         gbc.gridy++;
-        controlPanel.add(new CustomLabel("Borrow Days:"), gbc);
+        controlPanel.add(new CustomLabel("Year:"), gbc);
         gbc.gridy++;
         controlPanel.add(new CustomLabel("Description:"), gbc);
 
@@ -377,10 +376,7 @@ class AddBookPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.EAST;
 
-        genreField = new JTextField(15);
-        genreField.setPreferredSize(new Dimension(200, 30));
-        controlPanel.add(genreField, gbc);
-        gbc.gridy++;
+
         titleField = new JTextField(15);
         titleField.setPreferredSize(new Dimension(200, 30));
         controlPanel.add(titleField, gbc);
@@ -389,13 +385,13 @@ class AddBookPanel extends JPanel {
         authorField.setPreferredSize(new Dimension(200, 30));
         controlPanel.add(authorField, gbc);
         gbc.gridy++;
+        genreField = new JTextField(15);
+        genreField.setPreferredSize(new Dimension(200, 30));
+        controlPanel.add(genreField, gbc);
+        gbc.gridy++;
         yearField = new JTextField(15);
         yearField.setPreferredSize(new Dimension(200, 30));
         controlPanel.add(yearField, gbc);
-        gbc.gridy++;
-        borrowDaysField = new JTextField(15);
-        borrowDaysField.setPreferredSize(new Dimension(200, 30));
-        controlPanel.add(borrowDaysField, gbc);
         gbc.gridy++;
         descriptionField = new JTextField(15);
         descriptionField.setPreferredSize(new Dimension(200, 50));
@@ -432,7 +428,7 @@ class AddBookPanel extends JPanel {
                 String title = titleField.getText();
                 String author = authorField.getText();
                 String year = yearField.getText();
-                String borrowDays = borrowDaysField.getText();
+
                 String description = descriptionField.getText();
 
 
@@ -442,7 +438,6 @@ class AddBookPanel extends JPanel {
                 System.out.println("Title: " + title);
                 System.out.println("Author: " + author);
                 System.out.println("Year: " + year);
-                System.out.println("Borrow Days: " + borrowDays);
                 System.out.println("Description: " + description);
                 control.addBook(new Book(title, author, genre, Integer.parseInt(year), description));
 
@@ -456,7 +451,7 @@ class AddBookPanel extends JPanel {
         add(controlPanel, BorderLayout.CENTER);
 
         // Load the background image
-        backgroundImage = Toolkit.getDefaultToolkit().createImage("Icons/bg.jpg");
+        backgroundImage = Toolkit.getDefaultToolkit().createImage("src/Icons/bg.jpg");
     }
 
     @Override
@@ -470,6 +465,8 @@ class AddBookPanel extends JPanel {
 }
 class ViewBooksPanel extends JPanel {
     private Image backgroundImage;
+    private JTextField searchField;
+    private JButton searchButton;
     private JTable table;
     private JTable cartTable;
     private JButton borrowButton;
@@ -494,81 +491,86 @@ class ViewBooksPanel extends JPanel {
     }
 
     private void loadBackgroundImage() {
-        backgroundImage = Toolkit.getDefaultToolkit().createImage("Icons/bg.jpg");
+        backgroundImage = Toolkit.getDefaultToolkit().createImage("src/Icons/bg.jpg");
     }
 
-    private void createMainTable(Control control) throws SQLException {
-        Vector<String> viewColumnNames = new Vector<>();
-        // Add column names
-        viewColumnNames.add(""); // Checkbox column
-        viewColumnNames.add("ID");
-        viewColumnNames.add("Title");
-        viewColumnNames.add("Author");
-        viewColumnNames.add("Pages");
-        viewColumnNames.add("Availability");
-        viewColumnNames.add("Borrow Days");
-        viewColumnNames.add("Genre");
-        viewColumnNames.add("Year");
-        viewColumnNames.add("Rating");
+  private void createMainTable(Control control) throws SQLException {
+    Vector<String> viewColumnNames = new Vector<>();
+    // Add column names
+    viewColumnNames.add(""); // Checkbox column
+    viewColumnNames.add("ID");
+    viewColumnNames.add("Title");
+    viewColumnNames.add("Author");
+    viewColumnNames.add("Availability");
+    viewColumnNames.add("Genre");
+    viewColumnNames.add("Year");
+    viewColumnNames.add("Rating");
 
-        Vector<Vector<Object>> data = new Vector<>();
-        // Add sample data (you can replace this with actual data)
-        //SQL QUERY gelecek
-        ArrayList<Book> books = control.getBooks();
-        for (int i = 0; i <= books.size(); i++) {
-            Vector<Object> row = new Vector<>();
-            row.add(false); // Checkbox
-            Book book = books.get(i);
-            row.add(book.getBookID());
-            row.add(book.getBookName());
-            row.add(book.getAuthor());
-            row.add("200");
-            row.add(book.getisAvailable());
-            row.add("7");
-            row.add(book.getGenre());
-            row.add(book.getYear());
-            row.add(book.getRating());
-            data.add(row);
+    Vector<Vector<Object>> data = new Vector<>();
+    // Add sample data (you can replace this with actual data)
+    //SQL QUERY gelecek
+    ArrayList<Book> books = control.getBooks();
+    for (int i = 1; i <= 8; i++) {
+        Vector<Object> row = new Vector<>();
+        row.add(false); // Checkbox
+        Book book = books.get(i);
+        row.add(book.getBookID());
+        row.add(book.getBookName());
+        row.add(book.getAuthor());
+        row.add(book.getisAvailable());
+        row.add(book.getGenre());
+        row.add(book.getYear());
+        row.add(book.getRating());
+        data.add(row);
+    }
+
+    // Create the main table
+    DefaultTableModel tableModel = new DefaultTableModel(data, viewColumnNames) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return column == 0;
         }
 
-        // Create the main table
-        DefaultTableModel tableModel = new DefaultTableModel(data, viewColumnNames) {
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 0) {
-                    return Boolean.class; // Checkbox column
-                }
-                return super.getColumnClass(columnIndex);
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            if (columnIndex == 0) {
+                return Boolean.class; // Checkbox column
             }
-        };
+            return super.getColumnClass(columnIndex);
+        }
+    };
 
-        table = new JTable(tableModel);
-        table.getColumnModel().getColumn(0).setPreferredWidth(20); // Set checkbox column width
-        table.setPreferredScrollableViewportSize(new Dimension(600, 400)); // Set preferred size
+    table = new JTable(tableModel);
+    table.getColumnModel().getColumn(0).setPreferredWidth(20); // Set checkbox column width
+    table.setPreferredScrollableViewportSize(new Dimension(600, 400)); // Set preferred size
+    addTableMouseListener(table);
 
-        // Setup the TableRowSorter
-        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(tableModel);
-        table.setRowSorter(sorter);
-    }
+    // Setup the TableRowSorter
+    TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(tableModel);
+    table.setRowSorter(sorter);
+}
 
-    private void createCartTable() {
-        Vector<String> cartColumnNames = new Vector<>();
-        // Add column names for the cart table
-        cartColumnNames.add("");
-        cartColumnNames.add("ID");
-        cartColumnNames.add("Title");
-        cartColumnNames.add("Author");
-        cartColumnNames.add("Pages");
-        cartColumnNames.add("Availability");
-        cartColumnNames.add("Borrow Days");
-        cartColumnNames.add("Genre");
-        cartColumnNames.add("Year");
-        cartColumnNames.add("Rating");
+private void createCartTable() {
+    Vector<String> cartColumnNames = new Vector<>();
+    // Add column names for the cart table
+    cartColumnNames.add("");
+    cartColumnNames.add("ID");
+    cartColumnNames.add("Title");
+    cartColumnNames.add("Author");
+    cartColumnNames.add("Availability");
+    cartColumnNames.add("Genre");
+    cartColumnNames.add("Year");
+    cartColumnNames.add("Rating");
 
-        // Create the cart table
-        DefaultTableModel cartTableModel = new DefaultTableModel(new Vector<>(), cartColumnNames);
-        cartTable = new JTable(cartTableModel);
-    }
+    // Create the cart table
+    DefaultTableModel cartTableModel = new DefaultTableModel(new Vector<>(), cartColumnNames) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+    cartTable = new JTable(cartTableModel);
+}
 
     private void addComponents() {
         GridBagConstraints gbc = new GridBagConstraints();
@@ -576,40 +578,36 @@ class ViewBooksPanel extends JPanel {
         gbc.gridy = 0;
         gbc.weightx = 1;
         gbc.weighty = 1;
-        gbc.fill = GridBagConstraints.BOTH;
+        //add a textfield and a button to search for a book
+        JPanel searchPanel = new JPanel();
+        searchField = new JTextField(20);
+        searchButton = new JButton("Search");
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
+        searchPanel.setOpaque(false);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        add(searchPanel, gbc);
 
+
+
+        // Add the main table to a scroll pane
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        gbc.gridy++;
+        gbc.fill = GridBagConstraints.BOTH;
         add(scrollPane, gbc);
 
-
+        JLabel infoLabel = new CustomLabel("Double click on a book to see more information.");
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridy++;
-
-
-        JPanel cartButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));  // Use FlowLayout for horizontal alignment
-
+        add(infoLabel, gbc);
 
         addToCartButton = new JButton("Add to Cart");
         addToCartButton.addActionListener(this::addToCart);
-        cartButtonsPanel.add(addToCartButton);  // Add "Add to Cart" button to the panel
+        gbc.gridy++;
+        gbc.fill = GridBagConstraints.NONE;
+        add(addToCartButton, gbc);
 
-
-        removeFromCartButton = new JButton("Remove from Cart");
-        removeFromCartButton.addActionListener(this::removeFromCart);
-        cartButtonsPanel.add(removeFromCartButton);  // Add "Remove from Cart" button to the panel
-
-
-        add(cartButtonsPanel, gbc);  // Use the same GridBagConstraints as the table
-
-        JPanel searchPanel = new JPanel();
-        JTextField searchField = new JTextField(20);
-        JButton searchButton = new JButton("Search");
-        searchPanel.add(searchField);
-        searchPanel.add(searchButton);
-        gbc.gridy = 0; // Position at the top
-        gbc.weightx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(searchPanel, gbc);
 
         rateBookButton = new JButton("Rate Book");
         rateBookButton.addActionListener(this::rateBook);
@@ -650,6 +648,45 @@ class ViewBooksPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         add(notifyAvailabilityButton, gbc);
     }
+    private void addTableMouseListener(JTable table) {
+        table.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int selectedRow = table.getSelectedRow();
+                    if (selectedRow != -1) {
+                        // Retrieve the explanation and image path
+                        String explanation ="Lorem ipsum dolor sit amet, consectetur adipiscing elit," +
+                                " sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." +
+                                " Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi" +
+                                " ut aliquip ex ea commodo consequat.";
+                        String imagePath ="src/Icons/book.jpg" ;
+                        JTextArea explanationLabel = new JTextArea(explanation);
+                        explanationLabel.setLineWrap(true);
+                        explanationLabel.setWrapStyleWord(true);
+                        explanationLabel.setEditable(false);
+                        // Display the explanation and image in a message dialog
+                        ImageIcon bookImage = new ImageIcon(imagePath);
+
+                        JOptionPane optionPane = new JOptionPane(
+                                explanationLabel,
+                                JOptionPane.INFORMATION_MESSAGE,
+                                JOptionPane.DEFAULT_OPTION,
+                                bookImage
+                        );
+
+                        // Create a JDialog
+                        JDialog dialog = optionPane.createDialog(null, table.getValueAt(selectedRow, 2).toString());
+
+                        // Set custom size for the dialog
+                        dialog.setSize(500, 300); // Set the desired size here
+
+                        // Display the dialog
+                        dialog.setVisible(true);
+                    }
+                }
+            }
+        });
+    }
 
     private void onNotifyAvailabilityClicked(ActionEvent e) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
@@ -675,6 +712,7 @@ class ViewBooksPanel extends JPanel {
                     JOptionPane.INFORMATION_MESSAGE);
         }
     }
+
 
     // Action listeners for buttons
 
@@ -788,7 +826,7 @@ class ManageUsersPanel extends JPanel {
         setLayout(new BorderLayout());
 
         // Load the background image
-        backgroundImage = Toolkit.getDefaultToolkit().createImage("Icons/bg.jpg");
+        backgroundImage = Toolkit.getDefaultToolkit().createImage("src/Icons/bg.jpg");
 
         // Create search components
         JPanel searchPanel = new JPanel(new FlowLayout());
@@ -974,7 +1012,7 @@ class BookListPanel extends JPanel {
 
 
         // Load the background image
-        backgroundImage = Toolkit.getDefaultToolkit().createImage("Icons/bg.jpg");
+        backgroundImage = Toolkit.getDefaultToolkit().createImage("src/Icons/bg.jpg");
     }
 
     @Override
