@@ -1,5 +1,7 @@
 package src;
 
+import src.repository.Book;
+
 import javax.swing.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -21,7 +23,7 @@ public class Control {
                     }
                     String [] user = model.signIn(Integer.parseInt(infos[0]), infos[1]).split(",");
                     if (user.length > 2 && "true".equals(user[2])){
-                        addNewPage(new StaffFrame());
+                        addNewPage(new StaffFrame(this));
                     } else if (user.length > 1) {
                         addNewPage(new NormalFrame());
                         //send pop up message to the user
@@ -45,6 +47,9 @@ public class Control {
         }
         if (notifications[1]){
             JOptionPane.showMessageDialog(null, "You have books that are due soon", "Notification", JOptionPane.INFORMATION_MESSAGE);
+        }
+        if (!(notifications[0] && notifications[1])){
+            JOptionPane.showMessageDialog(null, "You have no notifications", "Notification", JOptionPane.INFORMATION_MESSAGE);
         }
 
 
@@ -71,6 +76,11 @@ public class Control {
         pages.get(index-1).setVisible(true);
     }
 
+    public void addBook(Book book) {
+        model.addBook(book);
+
+
+    }
 
 
 

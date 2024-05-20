@@ -8,13 +8,12 @@ import java.util.List;
 public class Book {
     private int bookID;
 
-    public Book(int bookID, String bookName, String author, String genre, int year, double rating, String description) {
-        this.bookID = bookID;
+    public Book(String bookName, String author, String genre, int year,String description) {
         this.bookName = bookName;
         this.author = author;
         this.genre = genre;
         this.year = year;
-        this.rating = rating;
+        this.rating =0.0;
         this.description = description;
         this.isAvailable = true;
         this.isOverdue = false;

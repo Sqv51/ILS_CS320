@@ -3,7 +3,11 @@ package src;
 import src.repository.Book;
 import src.repository.Rating;
 
-import java.sql.*;
+import javax.swing.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,11 +16,24 @@ public class Model {
     private int availableBookID;
     public Model() throws SQLException {
         conn = SqlConnection.getConnection();
-        PreparedStatement psMaxBookID = conn.prepareStatement("SELECT max(bookID) FROM Book");
-        ResultSet rsMaxBookID = psMaxBookID.executeQuery();
-        rsMaxBookID.next();
-        availableBookID = rsMaxBookID.getInt(1) + 1;
+        availableBookID = getAvaliableBookID();
+
+
     }
+
+    private int getAvaliableBookID() {
+        try {
+            PreparedStatement ps = conn.prepareStatement("SELECT MAX(bookID) FROM Book");
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) + 1;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 1;
+    }
+
     public String signIn(int ID, String password) throws SQLException {
 
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM Users WHERE userID = ? AND password =?");
@@ -70,18 +87,21 @@ public class Model {
     public void addBook(Book book) {
         try {
             PreparedStatement ps = conn.prepareStatement("INSERT INTO Book (bookID, bookName, author, genre, year, rating, description) VALUES (?,?,?,?,?,?,?)");
-            ps.setInt(1,availableBookID);
+            ps.setInt(1, availableBookID);
             ps.setString(2, book.getBookName());
             ps.setString(3, book.getAuthor());
             ps.setString(4, book.getGenre());
-            ps.setInt(5,book.getYear());
-            ps.setDouble(6,book.getRating());
+            ps.setInt(5, book.getYear());
+            ps.setDouble(6, book.getRating());
             ps.setString(7, book.getDescription());
+
 
             ps.executeUpdate();
             availableBookID++;
+            JOptionPane.showMessageDialog(null, "Book added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error adding book", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -103,7 +123,7 @@ public class Model {
         //sql query to check if the user has any book that is overdue (if return date is passed)
         boolean result[]=new boolean[2];
         try {
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM Books WHERE userID = ? AND returnDate < CURDATE()");
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM Borrow WHERE userID = ? AND returnDate < CURDATE()");
             ps.setInt(1,ID);
             ResultSet rs = ps.executeQuery();
             if (rs.next()){
@@ -114,7 +134,7 @@ public class Model {
         }
         //check if the user has any book reserved and available
         try {
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM Books WHERE userID = ? AND isAvailable = true");
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM Book WHERE bookID IN (SELECT bookID FROM Reserves WHERE userID = ?) AND isAvailable = true");
             ps.setInt(1,ID);
             ResultSet rs = ps.executeQuery();
             if (rs.next()){

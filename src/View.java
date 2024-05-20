@@ -1,5 +1,7 @@
 package src;
 
+import src.repository.Book;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -13,12 +15,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Vector;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Vector;
 
 public class View extends JFrame {
     private Control actionListener;
@@ -145,14 +147,14 @@ class LoginPanel extends JPanel {
 
 
 class StaffFrame extends JFrame {
-    public StaffFrame() {
+    public StaffFrame(Control control) {
         setTitle("Integrated Library System");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 700);
         setLocationRelativeTo(null);
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Add Book", new AddBookPanel());
+        tabbedPane.addTab("Add Book", new AddBookPanel(control));
         tabbedPane.addTab("View Books", new ViewBooksPanel());
         tabbedPane.addTab("Manage Users", new ManageUsersPanel());
         tabbedPane.addTab("Book List", new BookListPanel());
@@ -332,17 +334,17 @@ class CustomLabel extends JLabel {
 }
 
 class AddBookPanel extends JPanel {
-    private JTextField idField;
+    private JTextField genreField;
     private JTextField titleField;
     private JTextField authorField;
-    private JTextField pagesField;
+    private JTextField yearField;
     private JTextField borrowDaysField;
-    private JTextField explanationField;
+    private JTextField descriptionField;
     private JButton createButton;
     private JLabel imageLabel;
     private Image backgroundImage;
 
-    public AddBookPanel() {
+    public AddBookPanel(Control control) {
         setLayout(new BorderLayout());
 
         // Panel to hold input fields and button
@@ -356,17 +358,17 @@ class AddBookPanel extends JPanel {
         gbc.insets = new Insets(10, 100, 10, 100);
         gbc.anchor = GridBagConstraints.WEST;
 
-        controlPanel.add(new CustomLabel("Book ID:"), gbc);
+        controlPanel.add(new CustomLabel("Genre:"), gbc);
         gbc.gridy++;
         controlPanel.add(new CustomLabel("Book Title:"), gbc);
         gbc.gridy++;
         controlPanel.add(new CustomLabel("Author Name:"), gbc);
         gbc.gridy++;
-        controlPanel.add(new CustomLabel("Number of Pages:"), gbc);
+        controlPanel.add(new CustomLabel("Year:"), gbc);
         gbc.gridy++;
         controlPanel.add(new CustomLabel("Borrow Days:"), gbc);
         gbc.gridy++;
-        controlPanel.add(new CustomLabel("Explanation:"), gbc);
+        controlPanel.add(new CustomLabel("Description:"), gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 0;
@@ -374,9 +376,9 @@ class AddBookPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.EAST;
 
-        idField = new JTextField(15);
-        idField.setPreferredSize(new Dimension(200, 30));
-        controlPanel.add(idField, gbc);
+        genreField = new JTextField(15);
+        genreField.setPreferredSize(new Dimension(200, 30));
+        controlPanel.add(genreField, gbc);
         gbc.gridy++;
         titleField = new JTextField(15);
         titleField.setPreferredSize(new Dimension(200, 30));
@@ -386,17 +388,17 @@ class AddBookPanel extends JPanel {
         authorField.setPreferredSize(new Dimension(200, 30));
         controlPanel.add(authorField, gbc);
         gbc.gridy++;
-        pagesField = new JTextField(15);
-        pagesField.setPreferredSize(new Dimension(200, 30));
-        controlPanel.add(pagesField, gbc);
+        yearField = new JTextField(15);
+        yearField.setPreferredSize(new Dimension(200, 30));
+        controlPanel.add(yearField, gbc);
         gbc.gridy++;
         borrowDaysField = new JTextField(15);
         borrowDaysField.setPreferredSize(new Dimension(200, 30));
         controlPanel.add(borrowDaysField, gbc);
         gbc.gridy++;
-        explanationField = new JTextField(15);
-        explanationField.setPreferredSize(new Dimension(200, 50));
-        controlPanel.add(explanationField, gbc);
+        descriptionField = new JTextField(15);
+        descriptionField.setPreferredSize(new Dimension(200, 50));
+        controlPanel.add(descriptionField, gbc);
 
         // Add image label
         gbc.gridx = 0;
@@ -425,14 +427,25 @@ class AddBookPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Action to create the book
-                String id = idField.getText();
+             String genre = genreField.getText();
                 String title = titleField.getText();
                 String author = authorField.getText();
-                int pages = Integer.parseInt(pagesField.getText());
-                int borrowDays = Integer.parseInt(borrowDaysField.getText());
-                // Do something with the book details (e.g., create a book object)
-                System.out.println("New Book created: ID - " + id + ", Title - " + title + ", Author - " + author +
-                        ", Pages - " + pages + ", Borrow Days - " + borrowDays);
+                String year = yearField.getText();
+                String borrowDays = borrowDaysField.getText();
+                String description = descriptionField.getText();
+
+
+                //print all the data to the console
+                System.out.println("Book created with the following details:");
+                System.out.println("Genre: " + genre);
+                System.out.println("Title: " + title);
+                System.out.println("Author: " + author);
+                System.out.println("Year: " + year);
+                System.out.println("Borrow Days: " + borrowDays);
+                System.out.println("Description: " + description);
+                control.addBook(new Book(title, author, genre, Integer.parseInt(year), description));
+
+
             }
         });
 
@@ -894,6 +907,7 @@ class BookListPanel extends JPanel {
         createBookListButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Handle creating book list here
+
             }
         });
         topPanel.add(createBookListButton);
