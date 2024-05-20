@@ -1,7 +1,6 @@
 package src;
 
 import src.repository.Book;
-import src.Member;
 import src.repository.Rating;
 
 import java.sql.*;
@@ -9,9 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Model {
-    Connection conn;
-    public Model(){
+    private Connection conn;
+    private int availableBookID;
+    public Model() throws SQLException {
         conn = SqlConnection.getConnection();
+        PreparedStatement psMaxBookID = conn.prepareStatement("SELECT max(bookID) FROM Book");
+        ResultSet rsMaxBookID = psMaxBookID.executeQuery();
+        rsMaxBookID.next();
+        availableBookID = rsMaxBookID.getInt(1) + 1;
     }
     public String signIn(int ID, String password) throws SQLException {
 
@@ -37,7 +41,7 @@ public class Model {
     		if(rs.next()) {
     			book = new Book();
     			book.setBookID(rs.getInt("memberID"));
-                book.setTitle("title");
+                book.setBookName("title");
     		}
     	}catch (SQLException e) {
             e.printStackTrace();
@@ -65,12 +69,17 @@ public class Model {
 
     public void addBook(Book book) {
         try {
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO Books (title, author, isOverdue, isAvailable) VALUES (?,?,?,?)");
-            ps.setString(1, book.getTitle());
-            ps.setString(2, book.getAuthor());
-            ps.setBoolean(3, book.getisOverdue());
-            ps.setBoolean(4, book.getisAvailable());
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO Book (bookID, bookName, author, genre, year, rating, description) VALUES (?,?,?,?,?,?,?)");
+            ps.setInt(1,availableBookID);
+            ps.setString(2, book.getBookName());
+            ps.setString(3, book.getAuthor());
+            ps.setString(4, book.getGenre());
+            ps.setInt(5,book.getYear());
+            ps.setDouble(6,book.getRating());
+            ps.setString(7, book.getDescription());
+
             ps.executeUpdate();
+            availableBookID++;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -79,7 +88,7 @@ public class Model {
     public void updateBook(Book book) {
         try {
             PreparedStatement ps = conn.prepareStatement("UPDATE Books SET title = ?, author = ?, isOverdue = ?, isAvailable = ? WHERE bookID = ?");
-            ps.setString(1, book.getTitle());
+            ps.setString(1, book.getBookName());
             ps.setString(2, book.getAuthor());
             ps.setBoolean(3, book.getisOverdue());
             ps.setBoolean(4, book.getisAvailable());
@@ -128,7 +137,7 @@ public class Model {
     		ps.setInt(3, rating.getScore());
     		ps.executeUpdate();		
     		
-    	}catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
     	}
     }

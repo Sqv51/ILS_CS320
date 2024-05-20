@@ -2,19 +2,89 @@ package src.repository;
 
 import src.Member;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Book {
-    private String title;
-    private String author;
     private int bookID;
+
+    public Book(int bookID, String bookName, String author, String genre, int year, double rating, String description) {
+        this.bookID = bookID;
+        this.bookName = bookName;
+        this.author = author;
+        this.genre = genre;
+        this.year = year;
+        this.rating = rating;
+        this.description = description;
+        this.isAvailable = true;
+        this.isOverdue = false;
+        this.reservationList = new ArrayList<>();
+    }
+
+    private String bookName;
+    private String author;
+    private String genre;
+    private int year;
+    private double rating;
+    private String description;
     private boolean isOverdue;
     private boolean isAvailable;
     private List<Rating> ratings;
     private List<Member> reservationList;
 
-    public String getTitle(){
-        return title;
+    public Book() {
+
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public boolean isAvailable() {
+        return isAvailable;
+    }
+
+    public boolean isOverdue() {
+        return isOverdue;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public void setOverdue(boolean overdue) {
+        isOverdue = overdue;
+    }
+
+    public void setRatings(List<Rating> ratings) {
+        this.ratings = ratings;
+    }
+    public String getBookName(){
+        return bookName;
     }
     public String getAuthor(){
         return author;
@@ -22,8 +92,8 @@ public class Book {
     public boolean getisOverdue(){
         return isOverdue;
     }
-    public void setTitle(String title){
-        this.title=title;
+    public void setBookName(String bookName){
+        this.bookName = bookName;
     }
     protected void setAuthor(String author){
         this.author=author;

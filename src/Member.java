@@ -40,6 +40,6 @@ public class Member {
     	book.addRating(rating);
     }
     public void notifyWhenAvailable(Book book) {
-    	System.out.println("The book \"" + book.getTitle() + "\" is now available for borrowing.");
+    	System.out.println("The book \"" + book.getBookName() + "\" is now available for borrowing.");
     }
 }

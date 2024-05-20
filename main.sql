@@ -8,13 +8,14 @@ create table Users(userID integer,
                      isStaff bool);
 
 create table Book(bookID integer,
-      bookName varchar(100),
+                  bookName varchar(100),
+                  author varchar(30),
                   genre varchar(20),
                   year integer,
                   rating double,
                   description varchar(140),
-                  primary key(bookID),
-                  isAvailable bool);
+                  isAvailable bool,
+                  primary key(bookID));
 
 create table Reserves(userID integer,
        bookID integer,

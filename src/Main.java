@@ -1,10 +1,12 @@
 package src;
 
+import java.sql.SQLException;
+
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         View view = new View();
         Model model = new Model();
-        Control control = new Control(model, view);
+        new Control(model, view);
 
     }
 }
