@@ -16,6 +16,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -147,7 +148,7 @@ class LoginPanel extends JPanel {
 
 
 class StaffFrame extends JFrame {
-    public StaffFrame(Control control) {
+    public StaffFrame(Control control) throws SQLException {
         setTitle("Integrated Library System");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 700);
@@ -155,7 +156,7 @@ class StaffFrame extends JFrame {
 
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Add Book", new AddBookPanel(control));
-        tabbedPane.addTab("View Books", new ViewBooksPanel());
+        tabbedPane.addTab("View Books", new ViewBooksPanel(control));
         tabbedPane.addTab("Manage Users", new ManageUsersPanel());
         tabbedPane.addTab("Book List", new BookListPanel());
 
@@ -164,14 +165,14 @@ class StaffFrame extends JFrame {
     }
 }
 class NormalFrame extends JFrame {
-    public NormalFrame() {
+    public NormalFrame(Control control) {
         setTitle("Integrated Library System");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 700);
         setLocationRelativeTo(null);
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("View Books", new ViewBooksPanel());
+        tabbedPane.addTab("View Books", new ViewBooksPanel(control));
         tabbedPane.addTab("Booklist", new BookListPanel());
         tabbedPane.addTab("User Services", new UserPanel());
         add(tabbedPane);
@@ -479,10 +480,10 @@ class ViewBooksPanel extends JPanel {
     private JButton notifyAvailabilityButton;
     private JComboBox<String> bookListComboBox;
 
-    public ViewBooksPanel() {
+    public ViewBooksPanel(Control control) throws SQLException {
         initializeUI();
         loadBackgroundImage();
-        createMainTable();
+        createMainTable(control);
         createCartTable();
         addComponents();
     }
@@ -496,7 +497,7 @@ class ViewBooksPanel extends JPanel {
         backgroundImage = Toolkit.getDefaultToolkit().createImage("Icons/bg.jpg");
     }
 
-    private void createMainTable() {
+    private void createMainTable(Control control) throws SQLException {
         Vector<String> viewColumnNames = new Vector<>();
         // Add column names
         viewColumnNames.add(""); // Checkbox column
@@ -513,18 +514,20 @@ class ViewBooksPanel extends JPanel {
         Vector<Vector<Object>> data = new Vector<>();
         // Add sample data (you can replace this with actual data)
         //SQL QUERY gelecek
-        for (int i = 1; i <= 8; i++) {
+        ArrayList<Book> books = control.getBooks();
+        for (int i = 0; i <= books.size(); i++) {
             Vector<Object> row = new Vector<>();
             row.add(false); // Checkbox
-            row.add(Integer.toString(i));
-            row.add("Book " + i);
-            row.add("Author " + i);
+            Book book = books.get(i);
+            row.add(book.getBookID());
+            row.add(book.getBookName());
+            row.add(book.getAuthor());
             row.add("200");
-            row.add("Available");
+            row.add(book.getisAvailable());
             row.add("7");
-            row.add("Science-Fiction");
-            row.add("2005");
-            row.add("5");
+            row.add(book.getGenre());
+            row.add(book.getYear());
+            row.add(book.getRating());
             data.add(row);
         }
 

@@ -197,5 +197,15 @@ public class Model {
         }
         return averageRating;
     }
+    public ArrayList<Book> getBooks() throws SQLException {
+        PreparedStatement ps = conn.prepareStatement("SELECT * FROM Book;");
+        ResultSet rs = ps.executeQuery();
+        ArrayList<Book> books = new ArrayList<>();
+        while (rs.next()){
+            books.add(new Book(rs.getInt(1),rs.getString(2),rs.getString(3), rs.getString(4),rs.getInt(5),rs.getDouble(6),rs.getBoolean(8)));
+        }
+
+        return books;
+    }
 
 }

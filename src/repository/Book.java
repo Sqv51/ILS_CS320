@@ -8,7 +8,17 @@ import java.util.List;
 public class Book {
     private int bookID;
 
-    public Book(String bookName, String author, String genre, int year,String description) {
+    public Book(int bookID, String bookName, String author, String genre, int year, double rating, boolean isAvailable) {
+        this.bookID = bookID;
+        this.bookName = bookName;
+        this.author = author;
+        this.genre = genre;
+        this.year = year;
+        this.rating = rating;
+        this.isAvailable = isAvailable;
+    }
+
+    public Book(String bookName, String author, String genre, int year, String description) {
         this.bookName = bookName;
         this.author = author;
         this.genre = genre;

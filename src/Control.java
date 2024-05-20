@@ -25,7 +25,7 @@ public class Control {
                     if (user.length > 2 && "true".equals(user[2])){
                         addNewPage(new StaffFrame(this));
                     } else if (user.length > 1) {
-                        addNewPage(new NormalFrame());
+                        addNewPage(new NormalFrame(this));
                         //send pop up message to the user
                         checkForNotification(Integer.parseInt(user[0]));
                     } else {
@@ -83,7 +83,7 @@ public class Control {
     }
 
 
-
-
-
+    public ArrayList<Book> getBooks() throws SQLException {
+        return model.getBooks();
+    }
 }
