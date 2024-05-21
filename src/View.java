@@ -628,7 +628,7 @@ private void createCartTable() {
     cartTable = new JTable(cartTableModel);
 }
 
-    private void addComponents(Control control) {
+    private void addComponents(Control control) throws SQLException {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(0, 0, 0, 0);
         gbc.gridx = 0;
@@ -700,7 +700,8 @@ private void createCartTable() {
                 throw new RuntimeException(ex);
             }
         });
-        bookListComboBox = new JComboBox<>(new String[]{"Book List 1", "Book List 2", "Book List 3"});
+        ArrayList<String> bookListNames = control.getBookListName();
+        bookListComboBox = new JComboBox<>((String[])bookListNames.toArray());
         JPanel bookListPanel = new JPanel();
         bookListPanel.setLayout(new BorderLayout());
         bookListPanel.add(addToBookListButton, BorderLayout.NORTH);
