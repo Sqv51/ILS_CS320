@@ -92,8 +92,13 @@ public class Control {
 
     public void addBook(Book book) {
         model.addBook(book);
+    }
 
-
+    public void addBookList(String bookListName, ArrayList<Integer> bookIDList) throws SQLException {
+        model.addBookList(userID, bookIDList, bookListName);
+    }
+    public void createBookList(String bookListName) throws SQLException {
+        model.createBookList(userID,bookListName);
     }
 
 
@@ -105,9 +110,16 @@ public class Control {
         return model.getBooksByName(name);
     }
 
-    public static void borrowBook(int bookID) {
+    public ArrayList<Book> getBooksByBookList(String bookListName) throws SQLException {
+        return model.getBooksByBookList(bookListName);
+    }
 
+    public static void borrowBook(int bookID) {
         model.borrowBook(bookID, userID);
     }
+    public ArrayList<String> getBookListName() throws SQLException {
+        return model.getBookListName(userID);
+    }
+
 
 }

@@ -19,8 +19,6 @@ public class Model {
     public Model() throws SQLException {
         conn = SqlConnection.getConnection();
         availableBookID = getAvaliableBookID();
-
-
     }
 
     private int getAvaliableBookID() {
@@ -275,9 +273,7 @@ public class Model {
             e.printStackTrace();
         }
     }
-    public void addBookList(int userID, int bookID){
 
-    }
 
     public Vector<Vector<Object>> getBorrowedBooksData(int userID) {
         Vector<Vector<Object>> data = new Vector<>();
@@ -297,6 +293,46 @@ public class Model {
             e.printStackTrace();
         }
         return data;
+    }
+
+    public void addBookList(int userID, ArrayList<Integer> bookIDList, String bookListName) throws SQLException {
+        for (Integer bookID : bookIDList){
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO BookList (userID, bookID, bookListName) VALUES (?,?,?)");
+            ps.setInt(1,userID);
+            ps.setInt(2,bookID);
+            ps.setString(3,bookListName);
+            ps.execute();
+        }
+    }
+    public void createBookList(int userID, String bookListName) throws SQLException {
+        PreparedStatement ps = conn.prepareStatement("INSERT INTO UserBookList (userID, bookListName) VALUES (?,?)");
+        ps.setInt(1,userID);
+        ps.setString(2,bookListName);
+        ps.execute();
+    }
+    public ArrayList<Book> getBooksByBookList(String bookListName) throws SQLException {
+        PreparedStatement ps = conn.prepareStatement("SELECT b.bookID, b.bookName, b.author" +
+                "                                         FROM Book b, BookList bl " +
+                "                                         WHERE b.bookID = bl.bookID AND bl.bookListName =?");
+        ps.setString(1,bookListName);
+        ResultSet rs = ps.executeQuery();
+        ArrayList<Book> result = new ArrayList<>();
+        while (rs.next()){
+            result.add(new Book(rs.getInt(1),rs.getString(2), rs.getString(3)));
+        }
+        return result;
+    }
+
+    public ArrayList<String> getBookListName(int userID) throws SQLException {
+        PreparedStatement ps = conn.prepareStatement("SELECT bookListName FROM UserBookList WHERE userID = ?");
+        ps.setInt(1,userID);
+        ResultSet rs = ps.executeQuery();
+
+        ArrayList<String> result = new ArrayList<>();
+        while (rs.next()){
+            result.add(rs.getString(1));
+        }
+        return result;
     }
 }
 

@@ -45,6 +45,12 @@ public class Book {
 
     }
 
+    public Book(int bookID, String bookName, String author) {
+        this.bookID = bookID;
+        this.bookName = bookName;
+        this.author = author;
+    }
+
     public String getDescription() {
         return description;
     }

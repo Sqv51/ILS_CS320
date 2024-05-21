@@ -158,18 +158,20 @@ class StaffFrame extends JFrame {
         tabbedPane.addTab("Add Book", new AddBookPanel(control));
         tabbedPane.addTab("View Books", new ViewBooksPanel(control));
         tabbedPane.addTab("Manage Users", new ManageUsersPanel());
-        tabbedPane.addTab("Book List", new BookListPanel());
+        tabbedPane.addTab("Book List", new BookListPanel(control));
 
         add(tabbedPane);
 
     }
 }
 class NormalFrame extends JFrame {
+    private Control control;
     public NormalFrame(Control control) throws SQLException {
         setTitle("Integrated Library System");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 700);
         setLocationRelativeTo(null);
+        this.control = control;
 
         JTabbedPane tabbedPane = new JTabbedPane();
         try {
@@ -177,7 +179,7 @@ class NormalFrame extends JFrame {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        tabbedPane.addTab("Booklist", new BookListPanel());
+        tabbedPane.addTab("Booklist", new BookListPanel(control));
         tabbedPane.addTab("User Services", new UserPanel());
         add(tabbedPane);
 
@@ -477,6 +479,7 @@ class AddBookPanel extends JPanel {
     }
 }
 class ViewBooksPanel extends JPanel {
+    private Control control;
     private Image backgroundImage;
     private JTextField searchField;
     private JButton searchButton;
@@ -491,6 +494,7 @@ class ViewBooksPanel extends JPanel {
     private JComboBox<String> bookListComboBox;
 
     public ViewBooksPanel(Control control) throws SQLException {
+        this.control = control;
         initializeUI();
         loadBackgroundImage();
         createMainTable(control);
@@ -684,7 +688,13 @@ private void createCartTable() {
         add(borrowButton, gbc);
 
         addToBookListButton = new JButton("Add to Book List");
-        addToBookListButton.addActionListener(this::addToBookList);
+        addToBookListButton.addActionListener(e -> {
+            try {
+                addToBookList(e);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         bookListComboBox = new JComboBox<>(new String[]{"Book List 1", "Book List 2", "Book List 3"});
         JPanel bookListPanel = new JPanel();
         bookListPanel.setLayout(new BorderLayout());
@@ -842,16 +852,19 @@ private void createCartTable() {
         }
     }
 
-    private void addToBookList(ActionEvent e) {
+    private void addToBookList(ActionEvent e) throws SQLException {
         // Add selected books to the selected book list
         String selectedBookList = (String) bookListComboBox.getSelectedItem();
         DefaultTableModel cartModel = (DefaultTableModel) cartTable.getModel();
 
         // Do something with the selected book list and the books in the cart
         StringBuilder message = new StringBuilder("Added to ").append(selectedBookList).append(":\n");
+        ArrayList<Integer> bookIDList = new ArrayList<>();
         for (int i = 0; i < cartModel.getRowCount(); i++) {
             message.append(cartModel.getValueAt(i, 1)).append("\n"); // Get book title from column index 1
+            bookIDList.add(Integer.parseInt((String)cartModel.getValueAt(i, 1)));
         }
+        control.addBookList(selectedBookList,bookIDList);
 
         JOptionPane.showMessageDialog(this, message.toString());
     }
@@ -985,13 +998,15 @@ class ManageUsersPanel extends JPanel {
     }
 }
 class BookListPanel extends JPanel {
+    private Control control;
     private Image backgroundImage;
     private JTextField textField;
     private JButton createBookListButton;
     private JTable bookListTable;
     private JTable bookTable;
 
-    public BookListPanel() {
+    public BookListPanel(Control control) throws SQLException {
+        this.control = control;
         setLayout(new BorderLayout());
 
         // Text field and button panel
@@ -1001,7 +1016,11 @@ class BookListPanel extends JPanel {
         createBookListButton = new JButton("Create Book List");
         createBookListButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // Handle creating book list here
+                try {
+                    control.createBookList(textField.getText());
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
 
             }
         });
@@ -1009,6 +1028,7 @@ class BookListPanel extends JPanel {
         add(topPanel, BorderLayout.NORTH);
 
         // Table for displaying book lists
+        ArrayList<String> bookListNames = control.getBookListName();
         DefaultTableModel bookListModel = new DefaultTableModel(
                 new Object[][]{{"Book List 1"}, {"Book List 2"}}, // Test case: two book lists
                 new String[]{"Book List"}
@@ -1025,6 +1045,16 @@ class BookListPanel extends JPanel {
                         DefaultTableModel bookTableModel = (DefaultTableModel) bookTable.getModel();
                         bookTableModel.setRowCount(0); // Clear previous data
                         String selectedBookList = (String) bookListTable.getValueAt(selectedRow, 0);
+                        ArrayList<Book> books;
+                        try {
+                            books = control.getBooksByBookList(selectedBookList);
+                            for (Book book : books){
+                                bookTableModel.addRow(new Object[]{book.getBookName(), book.getAuthor(), book.getBookID()});
+                            }
+                            repaint();
+                        } catch (SQLException ex) {
+                            throw new RuntimeException(ex);
+                        }
                         if (selectedBookList.equals("Book List 1")) { // Test case: Add books to Book List 1
                             bookTableModel.addRow(new Object[]{"Book 1 Title", "Author 1", "1"});
                             bookTableModel.addRow(new Object[]{"Book 2 Title", "Author 2", "2"});

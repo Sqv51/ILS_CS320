@@ -26,9 +26,14 @@ create table Reserves(userID integer,
 
 create table BookList(userID integer,
                         bookID integer,
-                        primary key(userID, bookID),
+                        bookListName varchar(20),
+                        primary key(userID, bookID, bookListName),
                         foreign key(userID) references Users(userID),
                         foreign key(bookID) references Book(bookID));
+
+create table UserBookList(userID integer,
+                          bookListName varchar(20),
+                          primary key(userID, bookListName));
 
 create table Borrow(userID integer,
                                 bookID integer,
