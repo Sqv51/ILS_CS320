@@ -1019,6 +1019,7 @@ class BookListPanel extends JPanel {
     public BookListPanel(Control control) throws SQLException {
         this.control = control;
         setLayout(new BorderLayout());
+        DefaultTableModel bookTableModel = (DefaultTableModel) bookTable.getModel();
 
         // Text field and button panel
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -1029,6 +1030,7 @@ class BookListPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 try {
                     control.createBookList(textField.getText());
+                    bookTableModel.addRow(new Object[]{"Book 3 Title", "Author 3", "3"});
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -1060,7 +1062,6 @@ class BookListPanel extends JPanel {
                     int selectedRow = bookListTable.getSelectedRow();
                     if (selectedRow != -1) {
                         // Retrieve and display the books of the selected book list
-                        DefaultTableModel bookTableModel = (DefaultTableModel) bookTable.getModel();
                         bookTableModel.setRowCount(0); // Clear previous data
                         String selectedBookList = (String) bookListTable.getValueAt(selectedRow, 0);
                         ArrayList<Book> books;
@@ -1090,11 +1091,11 @@ class BookListPanel extends JPanel {
         add(bookListScrollPane, BorderLayout.WEST);
 
         // Table for displaying books
-        DefaultTableModel bookTableModel = new DefaultTableModel(
+        DefaultTableModel bookTableModel1 = new DefaultTableModel(
                 new Object[][]{},
                 new String[]{"Book Title", "Author", "Book ID"}
         );
-        bookTable = new JTable(bookTableModel);
+        bookTable = new JTable(bookTableModel1);
         JScrollPane bookScrollPane = new JScrollPane(bookTable);
         add(bookScrollPane, BorderLayout.CENTER);
         bookTable.setPreferredSize(new Dimension(300, 300));
