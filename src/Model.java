@@ -275,6 +275,9 @@ public class Model {
             e.printStackTrace();
         }
     }
+    public void addBookList(int userID, int bookID){
+
+    }
 
     public Vector<Vector<Object>> getBorrowedBooksData(int userID) {
         Vector<Vector<Object>> data = new Vector<>();

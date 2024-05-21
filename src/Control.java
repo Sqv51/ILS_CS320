@@ -19,6 +19,10 @@ public class Control {
 
     }
 
+    public static int getUserID() {
+        return userID;
+    }
+
     public void action(String command, String data) {
 
         if ("Enter-The-System".equals(command)){
@@ -34,6 +38,7 @@ public class Control {
                         userID = Integer.parseInt(user[0]);
                         addNewPage(new StaffFrame(this));
                     } else if (user.length > 1) {
+                        userID = Integer.parseInt(user[0]);
                         addNewPage(new NormalFrame(this));
                         //send pop up message to the user
                         checkForNotification(Integer.parseInt(user[0]));
