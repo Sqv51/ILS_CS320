@@ -86,4 +86,8 @@ public class Control {
     public ArrayList<Book> getBooks() throws SQLException {
         return model.getBooks();
     }
+    public ArrayList<Book> getBooksByName(String name) throws SQLException {
+        return model.getBooksByName(name);
+    }
+
 }

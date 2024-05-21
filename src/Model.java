@@ -14,6 +14,7 @@ import java.util.List;
 public class Model {
     private Connection conn;
     private int availableBookID;
+
     public Model() throws SQLException {
         conn = SqlConnection.getConnection();
         availableBookID = getAvaliableBookID();
@@ -36,48 +37,50 @@ public class Model {
 
     public String signIn(int ID, String password) throws SQLException {
 
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM Users WHERE userID = ? AND password =?");
-            ps.setInt(1,ID);
-            ps.setString(2,password);
-            ResultSet rs = ps.executeQuery();
+        PreparedStatement ps = conn.prepareStatement("SELECT * FROM Users WHERE userID = ? AND password =?");
+        ps.setInt(1, ID);
+        ps.setString(2, password);
+        ResultSet rs = ps.executeQuery();
 
-            if (rs.next()){
-                boolean isStaff = rs.getBoolean(5);
-                return "" + rs.getInt(1) +"," + rs.getString(2) + "," +isStaff;
-            }
+        if (rs.next()) {
+            boolean isStaff = rs.getBoolean(5);
+            return "" + rs.getInt(1) + "," + rs.getString(2) + "," + isStaff;
+        }
 
 
         return "Invalid Input";
     }
-    public Book getBookByID(int bookID){
-    	Book book = null;
-    	try {
-    		PreparedStatement ps = conn.prepareStatement("SELECT * FROM Members WHERE memberID = ?");
-    		ps.setInt(1, bookID);
-    		ResultSet rs = ps.executeQuery();
-    		if(rs.next()) {
-    			book = new Book();
-    			book.setBookID(rs.getInt("memberID"));
+
+    public Book getBookByID(int bookID) {
+        Book book = null;
+        try {
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM Members WHERE memberID = ?");
+            ps.setInt(1, bookID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                book = new Book();
+                book.setBookID(rs.getInt("memberID"));
                 book.setBookName("title");
-    		}
-    	}catch (SQLException e) {
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return book;
     }
-    
+
+
     public Member getMemberByID(int memberID) {
-    	Member member = null;
-    	try {
-    		PreparedStatement ps = conn.prepareStatement("SELECT * FROM Members WHERE memberID = ?");
-    		ps.setInt(1, memberID);
-    		ResultSet rs = ps.executeQuery();
-    		if(rs.next()) {
-    			member = new Member();
-    			member.setMemberId(rs.getInt("memberID"));
+        Member member = null;
+        try {
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM Members WHERE memberID = ?");
+            ps.setInt(1, memberID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                member = new Member();
+                member.setMemberId(rs.getInt("memberID"));
                 member.setName(rs.getString("name"));
-    		}
-    	}catch (SQLException e) {
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return member;
@@ -119,15 +122,15 @@ public class Model {
         }
     }
 
-    public boolean[] Notification(int ID){
+    public boolean[] Notification(int ID) {
         //sql query to check if the user has any book that is overdue (if return date is passed)
-        boolean result[]=new boolean[2];
+        boolean result[] = new boolean[2];
         try {
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM Borrow WHERE userID = ? AND returnDate < CURDATE()");
-            ps.setInt(1,ID);
+            ps.setInt(1, ID);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()){
-                result[0]=true;
+            if (rs.next()) {
+                result[0] = true;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -135,10 +138,10 @@ public class Model {
         //check if the user has any book reserved and available
         try {
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM Book WHERE bookID IN (SELECT bookID FROM Reserves WHERE userID = ?) AND isAvailable = true");
-            ps.setInt(1,ID);
+            ps.setInt(1, ID);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()){
-                result[1]=true;
+            if (rs.next()) {
+                result[1] = true;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -150,62 +153,113 @@ public class Model {
     }
 
     public void addRating(Book book, Rating rating) {
-    	try {
-    		PreparedStatement ps = conn.prepareStatement("INSERT INTO Ratings (bookID, memberID, rating) VALUES (?,?,?)");
-    		ps.setInt(1, book.getBookID());
-    		ps.setInt(2, rating.getMember().getMemberId());
-    		ps.setInt(3, rating.getScore());
-    		ps.executeUpdate();		
-    		
+        try {
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO Ratings (bookID, memberID, rating) VALUES (?,?,?)");
+            ps.setInt(1, book.getBookID());
+            ps.setInt(2, rating.getMember().getMemberId());
+            ps.setInt(3, rating.getScore());
+            ps.executeUpdate();
+
         } catch (SQLException e) {
             e.printStackTrace();
-    	}
+        }
     }
-    
-    public List<Rating> getRatings(Book book){
-    	List<Rating> ratings = new ArrayList<>();
-    	try {
-    		PreparedStatement ps = conn.prepareStatement("SELECT memberID, score from Ratings where bookID = ?");
-    		ps.setInt(1, book.getBookID());
-    		ResultSet rs = ps.executeQuery();
-    		
-    		while(rs.next()) {
-    			int memberID = rs.getInt("memberID");
+
+    public List<Rating> getRatings(Book book) {
+        List<Rating> ratings = new ArrayList<>();
+        try {
+            PreparedStatement ps = conn.prepareStatement("SELECT memberID, score from Ratings where bookID = ?");
+            ps.setInt(1, book.getBookID());
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int memberID = rs.getInt("memberID");
                 int score = rs.getInt("score");
                 Member member = getMemberByID(memberID);
                 Rating rating = new Rating(member, score);
-                ratings.add(rating);                
-    		}
-    		
-    	}catch (SQLException e) {
+                ratings.add(rating);
+            }
+
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return ratings;
     }
-    
+
     public double getAverageRating(int bookID) {
-    	double averageRating = 0;
+        double averageRating = 0;
         try {
             PreparedStatement ps = conn.prepareStatement("SELECT average rating from Ratings where bookID = ?");
             ps.setInt(1, bookID);
             ResultSet rs = ps.executeQuery();
-            if(rs.next()) {
+            if (rs.next()) {
                 averageRating = rs.getDouble("averageRating");
             }
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return averageRating;
     }
+
     public ArrayList<Book> getBooks() throws SQLException {
         PreparedStatement ps = conn.prepareStatement("SELECT * FROM Book;");
         ResultSet rs = ps.executeQuery();
         ArrayList<Book> books = new ArrayList<>();
-        while (rs.next()){
-            books.add(new Book(rs.getInt(1),rs.getString(2),rs.getString(3), rs.getString(4),rs.getInt(5),rs.getDouble(6),rs.getBoolean(8)));
+        while (rs.next()) {
+            books.add(new Book(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getInt(5), rs.getDouble(6), rs.getBoolean(8)));
         }
 
         return books;
     }
 
+    public ArrayList<Book> getBooksByName(String name) {
+        ArrayList<Book> books = new ArrayList<>();
+        try {
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM Book WHERE bookName = ?");
+            ps.setString(1, name);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                books.add(new Book(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getInt(5), rs.getDouble(6), rs.getBoolean(8)));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return books;
+    }
+
+
+
+    public void borrowBook(int bookID, int memberID) {
+        try {
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO Borrow (bookID, memberID, borrowDate, returnDate) VALUES (?,?,CURDATE(),DATE_ADD(CURDATE(), INTERVAL 14 DAY))");
+            ps.setInt(1, bookID);
+            ps.setInt(2, memberID);
+            ps.executeUpdate();
+            ps = conn.prepareStatement("UPDATE Book SET isAvailable = false WHERE bookID = ?");
+            ps.setInt(1, bookID);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void returnBook(int bookID, int memberID) {
+        try {
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM Borrow WHERE bookID = ? AND memberID = ?");
+            ps.setInt(1, bookID);
+            ps.setInt(2, memberID);
+            ps.executeUpdate();
+            ps = conn.prepareStatement("UPDATE Book SET isAvailable = true WHERE bookID = ?");
+            ps.setInt(1, bookID);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
+
+
+
+
+
+

@@ -12,7 +12,7 @@ public class SqlConnection {
         try {
             return DriverManager.getConnection(URL, USER, PASSWORD);
         } catch (Exception e) {
-           //print error
+            //print error
             e.toString();
             System.out.println("Error: " + e);
             return null;
