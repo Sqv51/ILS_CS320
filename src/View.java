@@ -1,7 +1,6 @@
 package src;
 
 import src.repository.Book;
-import src.Control;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -22,10 +21,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.Vector;
-
-import static java.awt.SystemColor.control;
 
 public class View extends JFrame {
     private Control actionListener;
@@ -303,21 +300,12 @@ class UserPanel extends JPanel {
         borrowedBooks.add(new Book("Book 1", "2023-04-15"));
         borrowedBooks.add(new Book("Book 2", "2023-05-01"));
     }
-    private DefaultTableModel populateBorrowedBooksTable() {// make this return a  Vector<Vector<Object>> data
-
-        Vector<String> userColumnNames = new Vector<>();
-        userColumnNames.add("Title");
-        userColumnNames.add("Due Date");
-        // Add sample data (you can replace this with actual data)
-        Vector<Vector<Object>> data = new Vector<>();
-        for (Book book : borrowedBooks) {
-            Vector<Object> row = new Vector<>();
-            row.add(book.title);
-            row.add(book.dueDate);
-            data.add(row);
-        }
-        return new DefaultTableModel(data, userColumnNames);
-
+    private DefaultTableModel populateBorrowedBooksTable() {
+        //populate from the database
+        // Assuming you have a method getBorrowedBooksData() that returns the data for the table
+        Vector<Vector<Object>> data = Control.getBorrowedBooksData();
+        Vector<String> columnNames = new Vector<>(Arrays.asList("Book ID", "Book Name", "Due Date"));
+        return new DefaultTableModel(data, columnNames);
     }
 
     @Override

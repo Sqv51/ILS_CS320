@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 public class Model {
     private Connection conn;
@@ -34,7 +35,6 @@ public class Model {
         }
         return 1;
     }
-
 
 
     public String signIn(int ID, String password) throws SQLException {
@@ -274,6 +274,26 @@ public class Model {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public Vector<Vector<Object>> getBorrowedBooksData(int userID) {
+        Vector<Vector<Object>> data = new Vector<>();
+        try {
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM Borrow WHERE userID = ?");
+            ps.setInt(1, userID);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Vector<Object> row = new Vector<>();
+                row.add(rs.getInt(1));
+                row.add(rs.getInt(2));
+                row.add(rs.getDate(3));
+                row.add(rs.getDate(4));
+                data.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return data;
     }
 }
 

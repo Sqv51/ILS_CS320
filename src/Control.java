@@ -5,6 +5,7 @@ import src.repository.Book;
 import javax.swing.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Vector;
 
 
 public class Control {
@@ -12,6 +13,12 @@ public class Control {
     private static Model model;
 
     private static int userID;
+
+    public static Vector<Vector<Object>> getBorrowedBooksData() {
+        return model.getBorrowedBooksData(userID);
+
+    }
+
     public void action(String command, String data) {
 
         if ("Enter-The-System".equals(command)){
