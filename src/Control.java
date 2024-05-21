@@ -9,8 +9,9 @@ import java.util.ArrayList;
 
 public class Control {
     private ArrayList<JFrame> pages;
-    private Model model;
+    private static Model model;
 
+    private static int userID;
     public void action(String command, String data) {
 
         if ("Enter-The-System".equals(command)){
@@ -23,6 +24,7 @@ public class Control {
                     }
                     String [] user = model.signIn(Integer.parseInt(infos[0]), infos[1]).split(",");
                     if (user.length > 2 && "true".equals(user[2])){
+                        userID = Integer.parseInt(user[0]);
                         addNewPage(new StaffFrame(this));
                     } else if (user.length > 1) {
                         addNewPage(new NormalFrame(this));
@@ -83,11 +85,17 @@ public class Control {
     }
 
 
+
     public ArrayList<Book> getBooks() throws SQLException {
         return model.getBooks();
     }
     public ArrayList<Book> getBooksByName(String name) throws SQLException {
         return model.getBooksByName(name);
+    }
+
+    public static void borrowBook(int bookID) {
+
+        model.borrowBook(bookID, userID);
     }
 
 }

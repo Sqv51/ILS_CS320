@@ -35,9 +35,12 @@ public class Model {
         return 1;
     }
 
+
+
     public String signIn(int ID, String password) throws SQLException {
 
         PreparedStatement ps = conn.prepareStatement("SELECT * FROM Users WHERE userID = ? AND password =?");
+
         ps.setInt(1, ID);
         ps.setString(2, password);
         ResultSet rs = ps.executeQuery();
@@ -227,11 +230,27 @@ public class Model {
         return books;
     }
 
-
+    public boolean doesUserExist(int userID) {
+        try {
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM Users WHERE userID = ?");
+            ps.setInt(1, userID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     public void borrowBook(int bookID, int memberID) {
+        if (!doesUserExist(memberID)) {
+            System.out.println("User with ID " + memberID + " does not exist.");
+            return;
+        }
         try {
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO Borrow (bookID, memberID, borrowDate, returnDate) VALUES (?,?,CURDATE(),DATE_ADD(CURDATE(), INTERVAL 14 DAY))");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO Borrow (bookID, userID, borrowDate, returnDate) VALUES (?,?,CURDATE(),DATE_ADD(CURDATE(), INTERVAL 14 DAY))");
             ps.setInt(1, bookID);
             ps.setInt(2, memberID);
             ps.executeUpdate();
@@ -245,7 +264,7 @@ public class Model {
 
     public void returnBook(int bookID, int memberID) {
         try {
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM Borrow WHERE bookID = ? AND memberID = ?");
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM Borrow WHERE bookID = ? AND userID = ?");
             ps.setInt(1, bookID);
             ps.setInt(2, memberID);
             ps.executeUpdate();

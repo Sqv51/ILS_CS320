@@ -1,6 +1,7 @@
 package src;
 
 import src.repository.Book;
+import src.Control;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -23,6 +24,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Vector;
+
+import static java.awt.SystemColor.control;
 
 public class View extends JFrame {
     private Control actionListener;
@@ -165,7 +168,7 @@ class StaffFrame extends JFrame {
     }
 }
 class NormalFrame extends JFrame {
-    public NormalFrame(Control control) {
+    public NormalFrame(Control control) throws SQLException {
         setTitle("Integrated Library System");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 700);
@@ -813,29 +816,24 @@ private void createCartTable() {
     private void borrowFromCart(ActionEvent e) {
         // Borrow books from the cart
         DefaultTableModel cartModel = (DefaultTableModel) cartTable.getModel();
-        StringBuilder booksBorrowed = new StringBuilder("Books borrowed:\n");
-        StringBuilder unavailableBooks = new StringBuilder("Unavailable books:\n");
-
+        //loop through the cart and borrow the books in the cart one by one if the book is available
         for (int i = 0; i < cartModel.getRowCount(); i++) {
-            String bookTitle = (String) cartModel.getValueAt(i, 2);
-            String availability = (String) cartModel.getValueAt(i, 5);
-            if ("Available".equals(availability)) {
-                booksBorrowed.append(bookTitle).append("\n");
-                cartModel.setValueAt("Not Available", i, 5);
+            String title = cartModel.getValueAt(i, 2).toString(); // Assuming the title is in column 2
+            String status = cartModel.getValueAt(i, 4).toString(); // Assuming the status is in column 5
+            if ("true".equals(status)) {
+                //borrow the book via 2nd column which is the ID
+               Control.borrowBook(Integer.parseInt(cartModel.getValueAt(i, 1).toString()));
+
+
+
+                cartModel.removeRow(i);
             } else {
-                unavailableBooks.append(bookTitle).append("\n");
+                JOptionPane.showMessageDialog(this, "The book '" + title + "' is not available.", "Book Not Available",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
 
-        if (booksBorrowed.length() > "Books borrowed:\n".length()) {
-            JOptionPane.showMessageDialog(this, booksBorrowed.toString());
-        } else {
-            JOptionPane.showMessageDialog(this, "No available books to borrow.");
-        }
 
-        if (unavailableBooks.length() > "Unavailable books:\n".length()) {
-            JOptionPane.showMessageDialog(this, unavailableBooks.toString(), "Unavailable Books", JOptionPane.WARNING_MESSAGE);
-        }
     }
 
 
