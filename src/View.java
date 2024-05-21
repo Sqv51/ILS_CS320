@@ -245,7 +245,12 @@ class UserPanel extends JPanel {
         payMembershipFeeButton = new JButton("Pay Membership Fee");
         payMembershipFeeButton.addActionListener(this::payMembershipFee);
         add(payMembershipFeeButton, gbc);
+        //add update button for updating the table from the database
+
     }
+
+
+
 
 
     private void payPenalty(ActionEvent e) {
@@ -829,7 +834,13 @@ private void createCartTable() {
                 JOptionPane.showMessageDialog(this, "The book '" + title + "' is not available.", "Book Not Available",
                         JOptionPane.ERROR_MESSAGE);
             }
+
+
+
         }
+
+
+
 
 
     }
@@ -1029,8 +1040,15 @@ class BookListPanel extends JPanel {
 
         // Table for displaying book lists
         ArrayList<String> bookListNames = control.getBookListName();
+        // Convert ArrayList to 2D Object array
+        Object[][] data = new Object[bookListNames.size()][1];
+        for (int i = 0; i < bookListNames.size(); i++) {
+            data[i][0] = bookListNames.get(i);
+        }
+
+// Create DefaultTableModel using the data
         DefaultTableModel bookListModel = new DefaultTableModel(
-                new Object[][]{{"Book List 1"}, {"Book List 2"}}, // Test case: two book lists
+                data,
                 new String[]{"Book List"}
         );
         bookListTable = new JTable(bookListModel);

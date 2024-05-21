@@ -34,6 +34,7 @@ public class Control {
                         return;
                     }
                     String [] user = model.signIn(Integer.parseInt(infos[0]), infos[1]).split(",");
+                    System.out.println(user[0]);
                     if (user.length > 2 && "true".equals(user[2])){
                         userID = Integer.parseInt(user[0]);
                         addNewPage(new StaffFrame(this));
