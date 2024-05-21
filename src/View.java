@@ -701,7 +701,11 @@ private void createCartTable() {
             }
         });
         ArrayList<String> bookListNames = control.getBookListName();
-        bookListComboBox = new JComboBox<>((String[])bookListNames.toArray());
+        String[] bookListNamesArray = new String[bookListNames.size()];
+        for(int p = 0; p < bookListNames.size(); p++){
+            bookListNamesArray[p] = bookListNames.get(p);
+        }
+        bookListComboBox = new JComboBox<>(bookListNamesArray);
         JPanel bookListPanel = new JPanel();
         bookListPanel.setLayout(new BorderLayout());
         bookListPanel.add(addToBookListButton, BorderLayout.NORTH);
@@ -874,7 +878,7 @@ private void createCartTable() {
         ArrayList<Integer> bookIDList = new ArrayList<>();
         for (int i = 0; i < cartModel.getRowCount(); i++) {
             message.append(cartModel.getValueAt(i, 1)).append("\n"); // Get book title from column index 1
-            bookIDList.add(Integer.parseInt((String)cartModel.getValueAt(i, 1)));
+            bookIDList.add(Integer.parseInt(cartModel.getValueAt(i, 1).toString())); // Convert to String before parsing to Integer
         }
         control.addBookList(selectedBookList,bookIDList);
 
@@ -1020,7 +1024,13 @@ class BookListPanel extends JPanel {
     public BookListPanel(Control control) throws SQLException {
         this.control = control;
         setLayout(new BorderLayout());
+        DefaultTableModel bookTableModel1 = new DefaultTableModel(
+                new Object[][]{},
+                new String[]{"Book Title", "Author", "Book ID"}
+        );
+        bookTable = new JTable(bookTableModel1);
         DefaultTableModel bookTableModel = (DefaultTableModel) bookTable.getModel();
+
 
         // Text field and button panel
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -1092,11 +1102,8 @@ class BookListPanel extends JPanel {
         add(bookListScrollPane, BorderLayout.WEST);
 
         // Table for displaying books
-        DefaultTableModel bookTableModel1 = new DefaultTableModel(
-                new Object[][]{},
-                new String[]{"Book Title", "Author", "Book ID"}
-        );
-        bookTable = new JTable(bookTableModel1);
+
+
         JScrollPane bookScrollPane = new JScrollPane(bookTable);
         add(bookScrollPane, BorderLayout.CENTER);
         bookTable.setPreferredSize(new Dimension(300, 300));
