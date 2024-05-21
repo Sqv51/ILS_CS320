@@ -24,7 +24,7 @@ create table Reserves(userID integer,
                       foreign key(userID) references Users(userID),
                       foreign key(bookID) references Book(bookID));
 
-create table Favourites(userID integer,
+create table BookList(userID integer,
                         bookID integer,
                         primary key(userID, bookID),
                         foreign key(userID) references Users(userID),
@@ -53,7 +53,7 @@ CREATE TABLE Ratings(
       bookID INT,
       memberID INT,
       score INT,
-      FOREIGN KEY (bookID) REFERENCES Books(bookID),
+      FOREIGN KEY (bookID) REFERENCES Book(bookID),
       FOREIGN KEY (memberID) REFERENCES Members(memberID)
 );
 
